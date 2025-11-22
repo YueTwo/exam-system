@@ -129,8 +129,8 @@ public class SysDepartController extends BaseController {
     @RequiresRoles("sa")
     @ApiOperation(value = "树列表")
     @RequestMapping(value = "/tree", method = { RequestMethod.POST})
-    public ApiRest<List<SysDepartTreeDTO>> tree() {
-        List<SysDepartTreeDTO> dtoList = baseService.findTree();
+    public ApiRest<List<SysDepartTreeDTO>> tree(@RequestBody(required=false) SysDepartDTO reqDTO) {
+        List<SysDepartTreeDTO> dtoList = baseService.findTree(reqDTO);
         return super.success(dtoList);
     }
 

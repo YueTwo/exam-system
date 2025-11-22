@@ -84,7 +84,7 @@
           <el-input v-model="formData.password" placeholder="不修改请留空" type="password" />
         </el-form-item>
 
-        <el-form-item label="部门">
+        <el-form-item label="院系">
           <depart-tree-select v-model="formData.departId" :options="treeData" :props="defaultProps" />
         </el-form-item>
 
@@ -139,7 +139,7 @@ export default {
       treeData: [],
       defaultProps: {
         value: 'id',
-        label: 'deptName',
+        label: 'facultyName',
         children: 'children'
       },
       dialogVisible: false,
@@ -180,7 +180,7 @@ export default {
   },
 
   created() {
-    fetchTree({}).then(response => {
+    fetchTree({ category: 'FACULTY' }).then(response => {
       this.treeData = response.data
     })
   },

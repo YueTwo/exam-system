@@ -31,10 +31,13 @@ public class SysDepartDTO implements Serializable {
     private String parentId;
     
     @ApiModelProperty(value = "部门名称", required=true)
-    private String deptName;
+    private String facultyName;
     
-    @ApiModelProperty(value = "部门编码", required=true)
+    @ApiModelProperty(value = "院系编码", required=true)
     private String deptCode;
+    
+    @ApiModelProperty(value = "组织类别", required=false)
+    private String category;
     
     @ApiModelProperty(value = "排序", required=true)
     private Integer sort;

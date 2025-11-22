@@ -39,6 +39,13 @@ public interface SysDepartService extends IService<SysDepart> {
     List<SysDepartTreeDTO> findTree();
 
     /**
+     * 查找部门树（带查询参数，可按 category 过滤）
+     * @param params
+     * @return
+     */
+    List<SysDepartTreeDTO> findTree(SysDepartDTO params);
+
+    /**
      * 查找部门树
      * @param ids
      * @return

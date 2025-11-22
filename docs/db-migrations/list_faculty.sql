@@ -1,0 +1,1 @@
+SELECT id, faculty_name, dept_code, category, sort FROM sys_depart WHERE category='FACULTY' ORDER BY sort;

@@ -42,14 +42,20 @@ public class SysDepart extends Model<SysDepart> {
     /**
     * 部门名称
     */
-    @TableField("dept_name")
-    private String deptName;
+    @TableField("faculty_name")
+    private String facultyName;
     
     /**
     * 部门编码
     */
     @TableField("dept_code")
     private String deptCode;
+    
+    /**
+    * 组织类别：例如 FACULTY/DEPT/LAB
+    */
+    @TableField("category")
+    private String category;
     
     /**
     * 排序
