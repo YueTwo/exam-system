@@ -29,6 +29,11 @@ ignore/
 # Logs
 /logs/
 /logs/**
+ 
+# Environment files (local secrets)
+.env
+.env.local
+.env.*
 *.log
 npm-debug.log*
 yarn-error.log*
