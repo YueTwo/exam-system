@@ -45,6 +45,15 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 // only set if not already present (env or properties take precedence)
                 if (environment.getProperty(key) == null) {
                     map.put(key, val);
+                    // also set as a JVM system property when absent so placeholders
+                    // that are resolved from system properties (e.g. datasource URL)
+                    // get the value during early bootstrap (helps JDBC parsing)
+                    try {
+                        if (System.getProperty(key) == null && System.getenv(key) == null) {
+                            System.setProperty(key, val);
+                        }
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
 
