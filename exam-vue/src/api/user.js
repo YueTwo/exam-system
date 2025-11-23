@@ -5,7 +5,8 @@ export function login(data) {
 }
 
 export function getInfo(token) {
-  return post('/exam/api/sys/user/info?token=' + token)
+  // Use header token (axios interceptor will attach token from cookie), do not rely on query param
+  return post('/exam/api/sys/user/info')
 }
 
 export function logout() {

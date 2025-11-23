@@ -10,6 +10,9 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 const whiteList = ['/login', '/register'] // no redirect whitelist
 
+// 防止路由生成/重定向重入导致的无限循环或栈溢出
+let addingRoutes = false
+
 router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
@@ -31,9 +34,33 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
+      // If roles exist and we already attempted to generate routes, skip fetching again
       const hasRoles = store.getters.roles && store.getters.roles.length > 0
-      if (hasRoles) {
+      const generated = store.getters.permission_generated
+      if (hasRoles && generated) {
         next()
+      } else if (hasRoles && !generated) {
+        // roles present but no routes generated yet: generate once
+        // 防止并发/重入导致重复 addRoutes 或 next 调用
+        if (addingRoutes) {
+          // 已经在生成路由，等待一会儿再继续（避免重复触发）
+          next()
+          return
+        }
+
+        try {
+          addingRoutes = true
+          const accessRoutes = await store.dispatch('permission/generateRoutes', store.getters.roles)
+          router.addRoutes(accessRoutes)
+          addingRoutes = false
+          next({ ...to, replace: true })
+        } catch (error) {
+          addingRoutes = false
+          await store.dispatch('user/resetToken')
+          Message.error(error || 'Has Error')
+          next(`/login?redirect=${to.path}`)
+          NProgress.done()
+        }
       } else {
         try {
           // 读取用户权限

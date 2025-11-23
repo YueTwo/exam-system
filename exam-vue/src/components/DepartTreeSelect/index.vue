@@ -103,6 +103,13 @@ export default {
     value(val) {
       this.labelModel = this.queryTree(this.data, val)
     }
+    ,
+    options(val) {
+      // 当选项异步加载后，如果已有 value，则刷新显示的 label
+      if (this.value) {
+        this.labelModel = this.queryTree(this.data, this.value)
+      }
+    }
   },
   created() {
     // 检测输入框原有值并显示对应 label
@@ -153,7 +160,7 @@ export default {
         if (temp[this.props.children]) {
           stark = stark.concat(temp[this.props.children])
         }
-        if (temp[this.props.value] === id) {
+        if (String(temp[this.props.value]) === String(id)) {
           return temp[this.props.label]
         }
       }

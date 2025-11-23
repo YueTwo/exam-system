@@ -48,4 +48,14 @@ public class ServiceException extends RuntimeException{
         this.msg = msg;
     }
 
+    /**
+     * 兼容旧有代码：构造时指定 code 和 msg
+     * @param code
+     * @param msg
+     */
+    public ServiceException(int code, String msg){
+        this.code = code;
+        this.msg = msg;
+    }
+
 }

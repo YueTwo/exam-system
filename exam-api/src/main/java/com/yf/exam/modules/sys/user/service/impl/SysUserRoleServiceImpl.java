@@ -121,7 +121,7 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
         // 学生角色
         QueryWrapper<SysUserRole> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(SysUserRole::getUserId, userId)
-                .eq(SysUserRole::getRoleId, "sa");
+            .eq(SysUserRole::getRoleId, "teacher");
 
         return this.count(wrapper) > 0;
     }
