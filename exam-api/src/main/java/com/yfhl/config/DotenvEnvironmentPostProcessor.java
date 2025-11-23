@@ -58,6 +58,33 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
             }
 
             if (!map.isEmpty()) {
+                // If DB parts are present, and spring.datasource.url not already defined,
+                // build the JDBC URL and set it so DataSource creation doesn't see unresolved placeholders.
+                try {
+                    String existingUrl = environment.getProperty("spring.datasource.url");
+                    if (existingUrl == null) {
+                        String host = (String) map.get("DB_HOST");
+                        String port = (String) map.get("DB_PORT");
+                        String name = (String) map.get("DB_NAME");
+                        if (host != null && port != null && name != null) {
+                            String built = String.format("jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true", host, port, name);
+                            map.put("spring.datasource.url", built);
+                            // also set as JVM property
+                            try { System.setProperty("spring.datasource.url", built); } catch (Throwable ignored) {}
+                        }
+                        // set username/password if present
+                        if (map.get("DB_USER") != null && environment.getProperty("spring.datasource.username") == null) {
+                            map.put("spring.datasource.username", map.get("DB_USER"));
+                            try { System.setProperty("spring.datasource.username", (String)map.get("DB_USER")); } catch (Throwable ignored) {}
+                        }
+                        if (map.get("DB_PASSWORD") != null && environment.getProperty("spring.datasource.password") == null) {
+                            map.put("spring.datasource.password", map.get("DB_PASSWORD"));
+                            try { System.setProperty("spring.datasource.password", (String)map.get("DB_PASSWORD")); } catch (Throwable ignored) {}
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+
                 MutablePropertySources sources = environment.getPropertySources();
                 sources.addFirst(new MapPropertySource(PROPERTY_SOURCE_NAME, map));
             }
