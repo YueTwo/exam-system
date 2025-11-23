@@ -11,6 +11,7 @@ import com.yf.exam.modules.sys.config.service.SysConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +42,7 @@ public class SysConfigController extends BaseController {
     * @param reqDTO
     * @return
     */
-    @RequiresRoles("sa")
+    @RequiresRoles("teacher")
     @ApiOperation(value = "添加或修改")
     @RequestMapping(value = "/save", method = { RequestMethod.POST})
     public ApiRest<BaseIdRespDTO> save(@RequestBody SysConfigDTO reqDTO) {

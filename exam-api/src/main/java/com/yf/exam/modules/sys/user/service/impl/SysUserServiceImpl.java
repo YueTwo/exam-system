@@ -165,11 +165,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanMapper.copy(reqDTO, user);
 
         // 添加模式
+        boolean isNew = false;
         if(StringUtils.isBlank(user.getId())){
+            isNew = true;
             user.setId(IdWorker.getIdStr());
         }
 
-        // 修改密码
+        // 修改密码: 如果是新建用户且没有填写密码，使用默认密码
+        if(isNew && StringUtils.isBlank(reqDTO.getPassword())){
+            reqDTO.setPassword("123456");
+        }
+
         if(!StringUtils.isBlank(reqDTO.getPassword())){
             PassInfo pass = PassHandler.buildPassword(reqDTO.getPassword());
             user.setPassword(pass.getPassword());
@@ -244,8 +250,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         String token = JwtUtils.sign(user.getUserName());
         respDTO.setToken(token);
 
-        // 填充角色
+        // 填充角色，保证返回到前端的 roles 一定是非 null 的 List
         List<String> roles = sysUserRoleService.listRoles(user.getId());
+        if(CollectionUtils.isEmpty(roles)){
+            // 尝试从 roleIds 字符串解析（兼容旧数据或映射异常情况）
+            String roleIds = respDTO.getRoleIds();
+            if(!StringUtils.isBlank(roleIds)){
+                String[] arr = roleIds.split(",");
+                roles = new ArrayList<>();
+                for(String r: arr){
+                    if(!StringUtils.isBlank(r)) roles.add(r.trim());
+                }
+            }
+        }
+
+        if(roles == null) roles = new ArrayList<>();
         respDTO.setRoles(roles);
 
         return respDTO;

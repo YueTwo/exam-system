@@ -2,6 +2,9 @@ import { login, reg, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
+// 防止并发重复请求 getInfo（会导致 /info 被同时请求多次）
+let infoPromise = null
+
 const state = {
   token: getToken(),
   userId: '',
@@ -68,32 +71,61 @@ const actions = {
 
   // get user info
   getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+    // 去重：如果已有未完成的请求，直接返回同一个 promise
+    if (infoPromise) return infoPromise
+
+    infoPromise = new Promise((resolve, reject) => {
+      // Do not pass token in query; axios interceptor will add token header
+      getInfo().then(response => {
         const { data } = response
 
         if (!data) {
           reject('校验失败，请重新登录！.')
+          infoPromise = null
+          return
         }
-
         const { id, roles, userName, realName, avatar, introduction } = data
 
+        // Make roles robust: backend may return string or other types for roles
+        let safeRoles = roles
+        if (!safeRoles) safeRoles = []
+        else if (!Array.isArray(safeRoles)) {
+          if (typeof safeRoles === 'string') {
+            safeRoles = safeRoles.split(',').map(r => r.trim()).filter(r => r)
+          } else if (typeof safeRoles === 'object') {
+            try {
+              // If it's an object, try to extract keys or values as fallback
+              safeRoles = Object.keys(safeRoles)
+            } catch (e) {
+              safeRoles = [String(safeRoles)]
+            }
+          } else {
+            safeRoles = [String(safeRoles)]
+          }
+        }
+
         // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
+        if (!safeRoles || safeRoles.length <= 0) {
+          infoPromise = null
           reject('用户角色不能为空！')
+          return
         }
 
         commit('SET_ID', id)
-        commit('SET_ROLES', roles)
+        commit('SET_ROLES', safeRoles)
         commit('SET_REAL_NAME', realName)
         commit('SET_NAME', userName)
         commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', introduction)
+        infoPromise = null
         resolve(data)
       }).catch(error => {
+        infoPromise = null
         reject(error)
       })
     })
+
+    return infoPromise
   },
 
   // user logout

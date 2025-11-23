@@ -159,7 +159,7 @@
 
       <el-radio-group v-model="postForm.openType" style="margin-bottom: 20px">
         <el-radio :label="1" border>完全公开</el-radio>
-        <el-radio :label="2" border>部门开放</el-radio>
+        <el-radio :label="2" border>院系开放</el-radio>
       </el-radio-group>
 
       <el-alert
@@ -213,7 +213,7 @@ export default {
 
       treeData: [],
       defaultProps: {
-        label: 'deptName'
+        label: 'facultyName'
       },
       filterText: '',
       treeLoading: false,
@@ -229,8 +229,8 @@ export default {
         repoList: [],
         // 开放类型
         openType: 1,
-        // 考试班级列表
-        departIds: []
+        // 考试院系列表
+          departIds: []
       },
       rules: {
         title: [
@@ -318,7 +318,7 @@ export default {
       this.fetchData(id)
     }
 
-    fetchTree({}).then(response => {
+    fetchTree({ category: 'FACULTY' }).then(response => {
       this.treeData = response.data
     })
   },
@@ -445,7 +445,7 @@ export default {
 
     filterNode(value, data) {
       if (!value) return true
-      return data.deptName.indexOf(value) !== -1
+      return data.facultyName.indexOf(value) !== -1
     },
 
     repoChange(e, row) {

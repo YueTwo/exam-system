@@ -28,13 +28,13 @@ export const constantRoutes = [
     hidden: true,
     children: [
       {
-        path: '/login',
+        path: '',
         name: 'Login',
         component: () => import('@/views/login/index'),
         hidden: true
       },
       {
-        path: '/register',
+        path: 'register',
         name: 'Register',
         component: () => import('@/views/login/register'),
         hidden: true
@@ -55,15 +55,8 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/my/exam',
     children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
-        meta: { title: '控制台', icon: 'dashboard', affix: true }
-      },
-
       {
         path: 'qu/view/:id',
         component: () => import('@/views/qu/qu/view'),
@@ -109,10 +102,10 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/my/exam',
     name: 'Online',
-    meta: {
+      meta: {
       title: '在线考试',
       icon: 'list',
-      roles: ['student', 'sa']
+      roles: ['student', 'assistant', 'teacher']
     },
     children: [
 
@@ -173,7 +166,7 @@ export const asyncRoutes = [
     meta: {
       title: '考试管理',
       icon: 'example',
-      roles: ['sa', 'teacher']
+      roles: ['teacher', 'assistant']
     },
     children: [
 
@@ -270,7 +263,7 @@ export const asyncRoutes = [
     meta: {
       title: '系统设置',
       icon: 'configure',
-      roles: ['sa']
+      roles: ['teacher']
     },
     children: [
       {
@@ -305,7 +298,9 @@ export const asyncRoutes = [
   },
 
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/dashboard', hidden: true }
+  // Redirect to '/404' instead of '/exam/repo' to avoid redirect loops
+  // when a user does not have permission to access '/exam/repo' (e.g. students).
+  { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({

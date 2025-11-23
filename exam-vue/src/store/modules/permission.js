@@ -6,8 +6,16 @@ import { asyncRoutes, constantRoutes } from '@/router'
  * @param route
  */
 function hasPermission(roles, route) {
+  // Normalize roles to array
+  if (!Array.isArray(roles)) {
+    if (!roles) roles = []
+    else if (typeof roles === 'string') roles = roles.split(',').map(r => r.trim()).filter(r => r)
+    else roles = [roles]
+  }
+
   if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.includes(role))
+    const allowed = Array.isArray(route.meta.roles) ? route.meta.roles : String(route.meta.roles).split(',').map(r => r.trim())
+    return roles.some(role => allowed.includes(role))
   } else {
     return true
   }
@@ -51,10 +59,22 @@ const actions = {
     return new Promise(resolve => {
       const accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       commit('SET_ROUTES', accessedRoutes)
+      // mark that we attempted to generate routes (even if empty) to avoid repeated attempts
+      if (typeof commit === 'function') {
+        commit('SET_GENERATED', true)
+      }
       resolve(accessedRoutes)
     })
   }
 }
+
+// add generated flag mutation
+mutations.SET_GENERATED = (state, v) => {
+  state.generated = v
+}
+
+// extend initial state with generated flag
+if (typeof state.generated === 'undefined') state.generated = false
 
 export default {
   namespaced: true,

@@ -60,9 +60,14 @@ export default {
   methods: {
 
     fetchData(q) {
-      fetchPaging({ current: 1, size: 1000, params: { title: q, excludes: this.excludes }}).then(res => {
-        this.dataList = res.data.records
-      })
+      fetchPaging({ current: 1, size: 500, params: { title: q, excludes: this.excludes }}).then(res => {
+          const records = (res && res.data && res.data.records) || [];
+          const MAX = 500;
+          if (records.length > MAX) {
+            try { this.$message && this.$message.warning('选项过多，仅显示前 ' + MAX + ' 条，请输入关键字以过滤'); } catch (e) {}
+          }
+          this.dataList = records.slice(0, MAX);
+        })
     },
     handlerChange(e) {
       const obj = this.dataList.find((item) => {

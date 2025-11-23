@@ -36,7 +36,7 @@ public class UserUtils {
     public static boolean isAdmin(boolean throwable){
         try {
             SysUserLoginDTO dto = ((SysUserLoginDTO) SecurityUtils.getSubject().getPrincipal());
-            return dto.getRoles().contains("sa");
+            return dto.getRoles().contains("teacher");
         }catch (Exception e){
             if(throwable){
                 throw new ServiceException(ApiError.ERROR_10010002);

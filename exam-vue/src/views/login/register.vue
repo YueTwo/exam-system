@@ -83,7 +83,8 @@ export default {
           this.loading = true
           this.$store.dispatch('user/reg', this.postForm)
             .then(() => {
-              this.$router.push({ path: this.redirect || '/admin/dashboard' })
+              const redirect = this.$route.query.redirect || '/my/exam'
+              this.$router.push({ path: redirect })
               this.loading = false
             })
             .catch(() => {

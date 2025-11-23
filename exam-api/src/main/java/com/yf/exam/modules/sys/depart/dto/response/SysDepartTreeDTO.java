@@ -26,3 +26,4 @@ public class SysDepartTreeDTO extends SysDepartDTO {
 
     
 }
+

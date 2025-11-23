@@ -71,7 +71,49 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
 
     @Override
     public List<SysDepartTreeDTO> findTree() {
-        return this.findTree(null);
+        return this.findTree((SysDepartDTO)null);
+    }
+
+    @Override
+    public List<SysDepartTreeDTO> findTree(SysDepartDTO params) {
+
+        QueryWrapper<SysDepart> wrapper = new QueryWrapper();
+        wrapper.lambda().orderByAsc(SysDepart::getSort);
+
+        if (params != null && params.getCategory() != null && params.getCategory().trim().length() > 0) {
+            wrapper.lambda().eq(SysDepart::getCategory, params.getCategory());
+        }
+
+        //全部列表
+        List<SysDepart> list = this.list(wrapper);
+        List<SysDepartTreeDTO> dtoList = BeanMapper.mapList(list, SysDepartTreeDTO.class);
+
+        //子结构的列表
+        Map<String,List<SysDepartTreeDTO>> map = new HashMap<>(16);
+
+        for(SysDepartTreeDTO item: dtoList){
+
+            //如果存在
+            if(map.containsKey(item.getParentId())){
+                map.get(item.getParentId()).add(item);
+                continue;
+            }
+
+            //增加新的结构
+            List<SysDepartTreeDTO> a = new ArrayList<>();
+            a.add(item);
+            map.put(item.getParentId(), a);
+        }
+
+        //注意，第0级为顶级的
+        List<SysDepartTreeDTO> topList = map.get(ROOT_TAG);
+        if(!CollectionUtils.isEmpty(topList)){
+            for(SysDepartTreeDTO item: topList){
+                this.fillChildren(map, item);
+            }
+        }
+
+        return topList;
     }
 
     @Override

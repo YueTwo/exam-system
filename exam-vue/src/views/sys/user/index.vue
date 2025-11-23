@@ -65,6 +65,17 @@
           </template>
         </el-table-column>
 
+        <el-table-column
+          align="center"
+          label="操作"
+          width="140"
+        >
+          <template v-slot="scope">
+            <el-button type="text" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+            <el-button type="text" size="mini" style="color:#f56c6c" @click="handleDeleteRow(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+
       </template>
     </data-table>
 
@@ -84,7 +95,7 @@
           <el-input v-model="formData.password" placeholder="不修改请留空" type="password" />
         </el-form-item>
 
-        <el-form-item label="部门">
+        <el-form-item label="院系">
           <depart-tree-select v-model="formData.departId" :options="treeData" :props="defaultProps" />
         </el-form-item>
 
@@ -116,6 +127,7 @@
 import DataTable from '@/components/DataTable'
 import MeetRole from '@/components/MeetRole'
 import { saveData } from '@/api/sys/user/user'
+import { deleteData } from '@/api/common'
 import DepartTreeSelect from '@/components/DepartTreeSelect'
 import { fetchTree } from '@/api/sys/depart/depart'
 
@@ -137,9 +149,11 @@ export default {
     return {
 
       treeData: [],
+      // 保存上次选择的院系ID，用于新建时预选
+      lastDepartId: null,
       defaultProps: {
         value: 'id',
-        label: 'deptName',
+        label: 'facultyName',
         children: 'children'
       },
       dialogVisible: false,
@@ -180,9 +194,32 @@ export default {
   },
 
   created() {
-    fetchTree({}).then(response => {
-      this.treeData = response.data
-    })
+    // 加载院系列表
+    fetchTree({ category: 'FACULTY' })
+      .then(response => {
+        // 后端返回统一结构 { code: 0, data: [...] }
+        if (response && (response.code === 0 || response.code === '0')) {
+          this.treeData = response.data || []
+        } else {
+          // 可能没有权限或其他错误，打印以便排查
+          console.error('fetchTree 返回异常', response)
+          this.treeData = response && response.data ? response.data : []
+        }
+      })
+      .catch(err => {
+        console.error('fetchTree 请求失败', err)
+        this.treeData = []
+      })
+
+    // 从 localStorage 读取上次保存的院系（如果有），在新增时会作为默认选中
+    try {
+      const saved = localStorage.getItem('sys_user_last_departId')
+      if (saved) {
+        this.lastDepartId = saved
+      }
+    } catch (e) {
+      // ignore
+    }
   },
 
   methods: {
@@ -194,6 +231,10 @@ export default {
 
     handleAdd() {
       this.formData = {}
+      // 如果有上次选择的院系，预填到新建表单
+      if (this.lastDepartId) {
+        this.formData.departId = this.lastDepartId
+      }
       this.dialogVisible = true
     },
 
@@ -208,6 +249,13 @@ export default {
 
     departSelected(data) {
       this.formData.departId = data.id
+      // 保存上次选择的院系到本地，便于下次新建时预选
+      this.lastDepartId = data.id
+      try {
+        localStorage.setItem('sys_user_last_departId', String(data.id))
+      } catch (e) {
+        // ignore
+      }
     },
     handleSave() {
       saveData(this.formData).then(() => {
@@ -218,6 +266,21 @@ export default {
         this.dialogVisible = false
         this.$refs.pagingTable.getList()
       })
+    },
+
+    // 删除单个用户
+    handleDeleteRow(row) {
+      this.$confirm('确实要删除该用户吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用通用删除接口
+        deleteData(this.options.deleteUrl, [row.id]).then(() => {
+          this.$message({ type: 'success', message: '删除成功!' })
+          this.$refs.pagingTable.getList()
+        })
+      }).catch(() => {})
     },
 
     // 批量操作监听

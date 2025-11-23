@@ -47,7 +47,7 @@
         />
 
         <el-table-column
-          label="部门"
+          label="院系"
           align="center"
           prop="departId_dictText"
         />
@@ -173,7 +173,7 @@ export default {
       treeData: [],
       defaultProps: {
         value: 'id',
-        label: 'deptName',
+        label: 'facultyName',
         children: 'children'
       },
 
@@ -202,7 +202,7 @@ export default {
       this.listQuery.params.examId = examId
     }
 
-    fetchTree({}).then(response => {
+    fetchTree({ category: 'FACULTY' }).then(response => {
       this.treeData = response.data
     })
   },

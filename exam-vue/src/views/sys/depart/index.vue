@@ -2,10 +2,10 @@
   <div class="app-container">
     <div class="filter-container">
 
-      <el-input v-model="listQuery.params.deptName" style="width: 200px" placeholder="搜索公司名称" class="filter-item" />
+      <el-input v-model="listQuery.params.facultyName" style="width: 200px" placeholder="搜索院系名称" class="filter-item" />
 
       <el-button class="filter-item" type="primary" icon="el-icon-plus" @click="formDialog(0)">
-        添加
+        添加院系
       </el-button>
 
     </div>
@@ -19,8 +19,8 @@
       row-key="id"
       border
     >
-      <el-table-column label="名称" prop="deptName" />
-      <el-table-column label="编码" prop="deptCode" />
+      <el-table-column label="院系名称" prop="facultyName" />
+      <el-table-column label="院系编码" prop="deptCode" />
 
       <el-table-column align="center" label="排序">
         <template v-slot="scope">
@@ -45,12 +45,20 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :visible.sync="dialogFormVisible"
-      title="维护部门"
+      title="维护院系"
       width="30%"
     >
       <el-form ref="postForm" :model="postForm" :rules="rules" label-width="100px" label-position="left">
-        <el-form-item label="部门名称" prop="deptName">
-          <el-input v-model="postForm.deptName" />
+        <el-form-item label="院系名称" prop="facultyName">
+          <el-input v-model="postForm.facultyName" />
+        </el-form-item>
+
+        <el-form-item label="院系编码" prop="deptCode">
+          <el-input v-model="postForm.deptCode" />
+        </el-form-item>
+
+        <el-form-item label="类别" prop="category" style="display:none">
+          <el-input v-model="postForm.category" />
         </el-form-item>
       </el-form>
 
@@ -75,8 +83,8 @@ export default {
       defaultExpand: true,
       postForm: {},
       rules: {
-        deptName: [
-          { required: true, message: '部门名称不能为空！' }
+        facultyName: [
+          { required: true, message: '院系名称不能为空！' }
         ]
       },
       dialogFormVisible: false,
@@ -89,7 +97,8 @@ export default {
         current: 1,
         size: 10,
         params: {
-
+          // 只加载院系类别的节点
+          category: 'FACULTY'
         }
       }
     }

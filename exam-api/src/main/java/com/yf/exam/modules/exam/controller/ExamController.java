@@ -17,6 +17,7 @@ import com.yf.exam.modules.exam.service.ExamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +47,7 @@ public class ExamController extends BaseController {
     * @param reqDTO
     * @return
     */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "添加或修改")
     @RequestMapping(value = "/save", method = { RequestMethod.POST})
     public ApiRest save(@RequestBody ExamSaveReqDTO reqDTO) {
@@ -60,7 +61,7 @@ public class ExamController extends BaseController {
     * @param reqDTO
     * @return
     */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "批量删除")
     @RequestMapping(value = "/delete", method = { RequestMethod.POST})
     public ApiRest edit(@RequestBody BaseIdsReqDTO reqDTO) {
@@ -86,7 +87,7 @@ public class ExamController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "查找详情")
     @RequestMapping(value = "/state", method = { RequestMethod.POST})
     public ApiRest state(@RequestBody BaseStateReqDTO reqDTO) {
@@ -121,7 +122,7 @@ public class ExamController extends BaseController {
     * @param reqDTO
     * @return
     */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "分页查找")
     @RequestMapping(value = "/paging", method = { RequestMethod.POST})
     public ApiRest<IPage<ExamDTO>> paging(@RequestBody PagingReqDTO<ExamDTO> reqDTO) {
@@ -138,7 +139,7 @@ public class ExamController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "待阅试卷")
     @RequestMapping(value = "/review-paging", method = { RequestMethod.POST})
     public ApiRest<IPage<ExamReviewRespDTO>> reviewPaging(@RequestBody PagingReqDTO<ExamDTO> reqDTO) {

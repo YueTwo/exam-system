@@ -76,10 +76,11 @@ export default {
   methods: {
 
     loginBack() {
-      // 其它跳到后台
-      this.$router.push({ path: '/admin/dashboard' })
+      // 优先跳转到 redirect 参数（如果存在），否则进入学生考试入口
+      const redirect = this.$route.query.redirect || '/my/exam'
+      this.$router.push({ path: redirect })
 
-      setTimeout(function() {
+      setTimeout(() => {
         this.loading = false
       }, 1800)
     },

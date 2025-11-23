@@ -43,4 +43,17 @@ public class ServiceExceptionHandler {
         return new ApiRest(e);
     }
 
+    /**
+     * 捕获 Shiro 的授权异常，返回统一结构，避免抛出 500
+     * @param e
+     * @return
+     */
+    @ExceptionHandler({org.apache.shiro.authz.AuthorizationException.class})
+    @ResponseStatus(HttpStatus.OK)
+    public ApiRest authorizationExceptionHandler(org.apache.shiro.authz.AuthorizationException e) {
+        // 返回统一的错误结构，前端会接收到 code != 0 表示失败
+        com.yf.exam.core.exception.ServiceException se = new com.yf.exam.core.exception.ServiceException("无权限执行此操作，请联系管理员");
+        return new ApiRest(se);
+    }
+
 }

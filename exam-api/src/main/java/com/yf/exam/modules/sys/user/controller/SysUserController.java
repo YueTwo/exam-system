@@ -16,6 +16,7 @@ import com.yf.exam.modules.sys.user.service.SysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,7 +75,12 @@ public class SysUserController extends BaseController {
      */
     @ApiOperation(value = "获取会话")
     @RequestMapping(value = "/info", method = {RequestMethod.POST})
-    public ApiRest info(@RequestParam("token") String token) {
+    public ApiRest info(@RequestParam(value = "token", required = false) String token, HttpServletRequest request) {
+        // 如果请求参数中没有 token，则尝试从请求头中读取（兼容不同客户端传参方式）
+        if(token == null || token.trim().isEmpty()){
+            token = request.getHeader("token");
+        }
+
         SysUserLoginDTO respDTO = baseService.token(token);
         return success(respDTO);
     }
@@ -95,7 +101,7 @@ public class SysUserController extends BaseController {
      * 保存或修改系统用户
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles("teacher")
     @ApiOperation(value = "保存或修改")
     @RequestMapping(value = "/save", method = {RequestMethod.POST})
     public ApiRest save(@RequestBody SysUserSaveReqDTO reqDTO) {
@@ -109,7 +115,7 @@ public class SysUserController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles("teacher")
     @ApiOperation(value = "批量删除")
     @RequestMapping(value = "/delete", method = { RequestMethod.POST})
     public ApiRest edit(@RequestBody BaseIdsReqDTO reqDTO) {
@@ -123,7 +129,7 @@ public class SysUserController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles("teacher")
     @ApiOperation(value = "分页查找")
     @RequestMapping(value = "/paging", method = { RequestMethod.POST})
     public ApiRest<IPage<SysUserDTO>> paging(@RequestBody PagingReqDTO<SysUserDTO> reqDTO) {
@@ -138,7 +144,7 @@ public class SysUserController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles("teacher")
     @ApiOperation(value = "修改状态")
     @RequestMapping(value = "/state", method = { RequestMethod.POST})
     public ApiRest state(@RequestBody BaseStateReqDTO reqDTO) {

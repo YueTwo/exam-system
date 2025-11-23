@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.Logical;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,7 +62,7 @@ public class QuController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "添加或修改")
     @RequestMapping(value = "/save", method = {RequestMethod.POST})
     public ApiRest<BaseIdRespDTO> save(@RequestBody QuDetailDTO reqDTO) {
@@ -75,7 +76,7 @@ public class QuController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "批量删除")
     @RequestMapping(value = "/delete", method = {RequestMethod.POST})
     public ApiRest edit(@RequestBody BaseIdsReqDTO reqDTO) {
@@ -103,7 +104,7 @@ public class QuController extends BaseController {
      * @param reqDTO
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "分页查找")
     @RequestMapping(value = "/paging", method = {RequestMethod.POST})
     public ApiRest<IPage<QuDTO>> paging(@RequestBody PagingReqDTO<QuQueryReqDTO> reqDTO) {
@@ -118,7 +119,7 @@ public class QuController extends BaseController {
     /**
      * 导出excel文件
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping(value = "/export")
     public ApiRest exportFile(HttpServletResponse response, @RequestBody QuQueryReqDTO reqDTO) {
@@ -159,7 +160,7 @@ public class QuController extends BaseController {
      * @param file
      * @return
      */
-    @RequiresRoles("sa")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping(value = "/import")
     public ApiRest importFile(@RequestParam("file") MultipartFile file) {
