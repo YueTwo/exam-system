@@ -14,6 +14,7 @@
       <div class="box-center">
         <div class="user-name text-center">{{ user.name }}</div>
         <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>
+        <div class="user-depart text-center text-muted" v-if="user.departName">{{ user.departName }}</div>
       </div>
     </div>
   </el-card>

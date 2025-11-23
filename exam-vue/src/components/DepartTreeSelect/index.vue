@@ -130,7 +130,77 @@ export default {
     },
     // 偏平数组转化为树状层级结构
     switchTree() {
-      return this.cleanChildren(this.buildTree(this.options, '0'))
+      // 先对后端返回字段做兼容性归一化，再构建树
+      const normalized = this.normalizeOptions(this.options)
+      return this.cleanChildren(this.buildTree(normalized, '0'))
+    },
+
+    // 将后端可能不同的字段名归一化为组件当前 props 指定的字段名
+    normalizeOptions(list = []) {
+      if (!Array.isArray(list)) return []
+
+      const valueKey = this.props.value || 'id'
+      const labelKey = this.props.label || 'label'
+      const parentKey = this.props.parent || 'parentId'
+      const childrenKey = this.props.children || 'children'
+
+      const aliases = {
+        value: ['id', 'rowGuid', 'row_guid', 'row_id', 'value'],
+        label: ['facultyName', 'faculty_name', 'areaName', 'area_name', 'name', 'label'],
+        parent: ['parentId', 'parent_id', 'parent'],
+        children: ['children', 'childrens', 'childList', 'child_list']
+      }
+
+      const mapItem = (item) => {
+        const o = Object.assign({}, item)
+
+        // ensure valueKey exists
+        if (o[valueKey] === undefined) {
+          for (const a of aliases.value) {
+            if (o[a] !== undefined) {
+              o[valueKey] = o[a]
+              break
+            }
+          }
+        }
+
+        // ensure labelKey exists
+        if (o[labelKey] === undefined) {
+          for (const a of aliases.label) {
+            if (o[a] !== undefined) {
+              o[labelKey] = o[a]
+              break
+            }
+          }
+        }
+
+        // ensure parentKey exists
+        if (o[parentKey] === undefined) {
+          for (const a of aliases.parent) {
+            if (o[a] !== undefined) {
+              o[parentKey] = o[a]
+              break
+            }
+          }
+        }
+
+        // normalize children recursively and ensure childrenKey name
+        let childList = []
+        for (const a of aliases.children) {
+          if (Array.isArray(o[a]) && o[a].length > 0) {
+            childList = o[a]
+            break
+          }
+        }
+
+        if (childList.length > 0) {
+          o[childrenKey] = childList.map(mapItem)
+        }
+
+        return o
+      }
+
+      return list.map(mapItem)
     },
     // 隐藏树状菜单
     onCloseTree() {
@@ -173,7 +243,8 @@ export default {
         for (let i = 0; i < data.length; i++) {
           const n = data[i]
           if (n[this.props.parent] === parentId) {
-            n.children = fa(n.rowGuid)
+            // 使用配置的 value 字段作为子节点查找键（替代硬编码的 rowGuid）
+            n.children = fa(n[this.props.value])
             temp.push(n)
           }
         }

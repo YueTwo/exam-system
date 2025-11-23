@@ -1,4 +1,5 @@
 import { login, reg, logout, getInfo } from '@/api/user'
+import { fetchDetail as fetchDepartDetail } from '@/api/sys/depart/depart'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -12,7 +13,9 @@ const state = {
   realName: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  departId: '',
+  departName: ''
 }
 
 const mutations = {
@@ -33,6 +36,12 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_DEPART_ID: (state, departId) => {
+    state.departId = departId
+  },
+  SET_DEPART_NAME: (state, departName) => {
+    state.departName = departName
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
@@ -56,9 +65,14 @@ const actions = {
   },
 
   reg({ commit }, userInfo) {
-    const { userName, realName, password } = userInfo
+    // keep full payload (including departId) when registering
     return new Promise((resolve, reject) => {
-      reg({ userName: userName.trim(), realName: realName.trim(), password: password }).then(response => {
+      // trim userName/realName if present
+      const payload = Object.assign({}, userInfo)
+      if (payload.userName) payload.userName = payload.userName.trim()
+      if (payload.realName) payload.realName = payload.realName.trim()
+
+      reg(payload).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.token)
         setToken(data.token)
@@ -116,6 +130,17 @@ const actions = {
         commit('SET_REAL_NAME', realName)
         commit('SET_NAME', userName)
         commit('SET_AVATAR', avatar)
+        // departId may be present in backend response
+        if (data.departId) {
+          commit('SET_DEPART_ID', data.departId)
+          // fetch depart detail to get display name
+          fetchDepartDetail(data.departId).then(resp => {
+            if (resp && (resp.code === 0 || resp.code === '0')) {
+              const detail = resp.data || {}
+              commit('SET_DEPART_NAME', detail.facultyName || detail.deptName || '')
+            }
+          }).catch(() => {})
+        }
         commit('SET_INTRODUCTION', introduction)
         infoPromise = null
         resolve(data)

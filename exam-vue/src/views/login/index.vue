@@ -77,7 +77,18 @@ export default {
 
     loginBack() {
       // 优先跳转到 redirect 参数（如果存在），否则进入学生考试入口
-      const redirect = this.$route.query.redirect || '/my/exam'
+      // 如果是 assistant 账号，则强制进入考试界面，避免因 redirect 指向无权限页面而出现 404
+      const requested = this.$route.query.redirect
+      let redirect = requested || '/my/exam'
+      try {
+        const roles = this.$store.getters.roles || []
+        if (roles.includes('assistant')) {
+          redirect = '/my/exam'
+        }
+      } catch (e) {
+        // 如果读取角色失败，保留原始 redirect 或默认值
+      }
+
       this.$router.push({ path: redirect })
 
       setTimeout(() => {

@@ -41,9 +41,13 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
     @Override
     public void save(SysDepartDTO reqDTO) {
 
-        if(StringUtils.isBlank(reqDTO.getId())) {
-            this.fillCode(reqDTO);
-        }else{
+        // 新增时：如果用户未填写 deptCode，则自动生成；如果用户手动填写，则保留其输入
+        if (StringUtils.isBlank(reqDTO.getId())) {
+            if (StringUtils.isBlank(reqDTO.getDeptCode())) {
+                this.fillCode(reqDTO);
+            }
+        } else {
+            // 修改时不允许修改排序和编码，由后台保持原值
             reqDTO.setSort(null);
             reqDTO.setDeptCode(null);
         }
