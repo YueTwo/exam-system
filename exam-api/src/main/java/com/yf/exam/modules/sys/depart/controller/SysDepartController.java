@@ -74,7 +74,6 @@ public class SysDepartController extends BaseController {
     * @param reqDTO
     * @return
     */
-    @RequiresRoles("teacher")
     @ApiOperation(value = "查找详情")
     @RequestMapping(value = "/detail", method = { RequestMethod.POST})
     public ApiRest<SysDepartDTO> find(@RequestBody BaseIdReqDTO reqDTO) {
@@ -127,7 +126,6 @@ public class SysDepartController extends BaseController {
      * 树列表
      * @return
      */
-    @RequiresRoles("teacher")
     @ApiOperation(value = "树列表")
     @RequestMapping(value = "/tree", method = { RequestMethod.POST})
     public ApiRest<List<SysDepartTreeDTO>> tree(@RequestBody(required=false) SysDepartDTO reqDTO) {

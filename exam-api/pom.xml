@@ -224,6 +224,8 @@
 
 
     <build>
+        <!-- Output build artifacts into repository-level ignore directory -->
+        <directory>${project.basedir}/ignore/exam-api-target</directory>
         <finalName>${project.name}</finalName>
         <defaultGoal>compile</defaultGoal>
         <plugins>

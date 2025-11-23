@@ -19,7 +19,8 @@ module.exports = {
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
   publicPath: '/',
-  outputDir: 'dist',
+  // Place built assets into repository-level ignore folder
+  outputDir: require('path').resolve(__dirname, '../ignore/exam-vue-dist'),
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,

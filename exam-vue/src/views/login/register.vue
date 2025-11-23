@@ -25,6 +25,10 @@
         />
       </el-form-item>
 
+      <el-form-item label="院系" prop="departId">
+        <depart-tree-select v-model="postForm.departId" :options="treeData" :props="defaultProps" />
+      </el-form-item>
+
       <el-form-item prop="password">
         <el-input
           v-model="postForm.password"
@@ -52,12 +56,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import DepartTreeSelect from '@/components/DepartTreeSelect'
+import { fetchTree } from '@/api/sys/depart/depart'
 
 export default {
   data() {
     return {
       postForm: {
         mobile: '',
+        departId: '',
         password: ''
       },
       loginRules: {
@@ -65,9 +72,18 @@ export default {
         userName: [{ required: true, trigger: 'blur', message: '用户名不能为空！' }],
         realName: [{ required: true, trigger: 'blur', message: '姓名不能为空！' }],
         captchaValue: [{ required: true, trigger: 'blur', message: '验证码不能为空' }]
+        ,
+        departId: [{ required: true, trigger: 'change', message: '请选择院系' }]
       },
       loading: false
     }
+  },
+  components: { DepartTreeSelect },
+
+  created() {
+    this.treeData = []
+    this.defaultProps = { value: 'id', label: 'facultyName', children: 'children' }
+    this.loadFaculties()
   },
   computed: {
     ...mapGetters([
@@ -77,11 +93,28 @@ export default {
 
   methods: {
 
+    // 加载院系列表供注册时选择
+    loadFaculties() {
+      fetchTree({ category: 'FACULTY' })
+        .then(res => {
+          if (res && (res.code === 0 || res.code === '0')) {
+            this.treeData = res.data || []
+          } else {
+            this.treeData = res && res.data ? res.data : []
+          }
+        })
+        .catch(() => {
+          this.treeData = []
+        })
+    },
+
     handleReg() {
       this.$refs.postForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/reg', this.postForm)
+          // include departId in payload (may be empty if user didn't select)
+          const payload = Object.assign({}, this.postForm)
+          this.$store.dispatch('user/reg', payload)
             .then(() => {
               const redirect = this.$route.query.redirect || '/my/exam'
               this.$router.push({ path: redirect })

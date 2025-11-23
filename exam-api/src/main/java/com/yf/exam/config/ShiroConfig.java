@@ -51,6 +51,9 @@ public class ShiroConfig {
 
 		// 获取网站基本信息
 		map.put("/exam/api/sys/config/detail", "anon");
+		// 部门树和详情对外公开（用于注册页、前端展示）
+		map.put("/exam/api/sys/depart/tree", "anon");
+		map.put("/exam/api/sys/depart/detail", "anon");
 
 		// 文件读取
 		map.put("/upload/file/**", "anon");

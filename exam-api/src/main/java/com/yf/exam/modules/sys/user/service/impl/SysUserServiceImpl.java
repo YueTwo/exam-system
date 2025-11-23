@@ -207,6 +207,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         user.setId(IdWorker.getIdStr());
         user.setUserName(reqDTO.getUserName());
         user.setRealName(reqDTO.getRealName());
+        // 如果注册请求中包含 departId，则保存用户的部门信息
+        if(reqDTO.getDepartId() != null){
+            user.setDepartId(reqDTO.getDepartId());
+        }
         PassInfo passInfo = PassHandler.buildPassword(reqDTO.getPassword());
         user.setPassword(passInfo.getPassword());
         user.setSalt(passInfo.getSalt());

@@ -45,6 +45,14 @@
 
         <el-table-column
           align="center"
+          label="院系"
+        >
+          <template v-slot="scope">
+            {{ displayDeptName(scope.row) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
           label="角色"
           prop="roleIds"
         />
@@ -96,7 +104,7 @@
         </el-form-item>
 
         <el-form-item label="院系">
-          <depart-tree-select v-model="formData.departId" :options="treeData" :props="defaultProps" />
+          <meet-depart v-model="formData.departId" />
         </el-form-item>
 
         <el-form-item label="角色">
@@ -126,14 +134,14 @@
 <script>
 import DataTable from '@/components/DataTable'
 import MeetRole from '@/components/MeetRole'
+import MeetDepart from '@/components/MeetDepart'
 import { saveData } from '@/api/sys/user/user'
 import { deleteData } from '@/api/common'
-import DepartTreeSelect from '@/components/DepartTreeSelect'
 import { fetchTree } from '@/api/sys/depart/depart'
 
 export default {
   name: 'SysUserList',
-  components: { DepartTreeSelect, DataTable, MeetRole },
+  components: { MeetDepart, DataTable, MeetRole },
   filters: {
 
     // 订单状态
@@ -194,22 +202,40 @@ export default {
   },
 
   created() {
-    // 加载院系列表
-    fetchTree({ category: 'FACULTY' })
-      .then(response => {
-        // 后端返回统一结构 { code: 0, data: [...] }
-        if (response && (response.code === 0 || response.code === '0')) {
-          this.treeData = response.data || []
-        } else {
-          // 可能没有权限或其他错误，打印以便排查
-          console.error('fetchTree 返回异常', response)
-          this.treeData = response && response.data ? response.data : []
-        }
-      })
-      .catch(err => {
-        console.error('fetchTree 请求失败', err)
-        this.treeData = []
-      })
+    // 加载院系列表（不按 category 过滤，展示所有院系）
+    const loadTree = (params) => {
+      return fetchTree(params)
+        .then(response => {
+          console.debug('fetchTree response:', response)
+          if (Array.isArray(response)) {
+            return response
+          } else if (response && (response.code === 0 || response.code === '0')) {
+            return response.data || []
+          } else if (response && response.data) {
+            return response.data
+          }
+          return []
+        })
+        .catch(err => {
+          console.error('fetchTree 请求失败', err)
+          return []
+        })
+    }
+
+    // 首先尝试带 category 参数加载院系
+    loadTree({ category: 'FACULTY' }).then(list => {
+      this.treeData = list || []
+      // 如果没数据，尝试不带参数加载全部
+      if (!this.treeData || this.treeData.length === 0) {
+        console.warn('fetchTree with category returned empty, retrying without category')
+        loadTree().then(all => {
+          this.treeData = all || []
+          if (!this.treeData || this.treeData.length === 0) {
+            console.warn('depart tree is empty')
+          }
+        })
+      }
+    })
 
     // 从 localStorage 读取上次保存的院系（如果有），在新增时会作为默认选中
     try {
@@ -223,6 +249,60 @@ export default {
   },
 
   methods: {
+
+    getDeptName(id) {
+      if (!id) return ''
+      const find = (nodes) => {
+        if (!nodes || !nodes.length) return ''
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i]
+          if (node.id === id || String(node.id) === String(id)) {
+            return node.facultyName || node.label || node.name || ''
+          }
+          if (node.children && node.children.length) {
+            const r = find(node.children)
+            if (r) return r
+          }
+        }
+        return ''
+      }
+      return find(this.treeData)
+    },
+
+    // 根据 facultyName 查找对应的 id（用于后端以 name 存储 depart_id 的情况下回填）
+    findDeptIdByName(name) {
+      if (!name) return null
+      const find = (nodes) => {
+        if (!nodes || !nodes.length) return null
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i]
+          const nodeName = node.facultyName || node.label || node.name || ''
+          if (nodeName === name) return node.id || node.value || null
+          if (node.children && node.children.length) {
+            const r = find(node.children)
+            if (r) return r
+          }
+        }
+        return null
+      }
+      return find(this.treeData)
+    },
+
+    // 安全展示院系名称：支持 row 中 departId（id 字符串）或 depart_id（可能是 id 或 faculty_name）
+    displayDeptName(row) {
+      if (!row) return ''
+      const id = row.departId || row.depart_id
+      if (!id) return ''
+
+      // 如果是纯数字或看起来像 id，则按 id 查找名称
+      if (/^\d+$/.test(String(id))) {
+        const name = this.getDeptName(id)
+        return name || ''
+      }
+
+      // 否则认为后端已把 faculty_name 存入 depart_id，直接返回
+      return id
+    },
 
     handleUploadSuccess(response) {
       // 上传图片赋值
@@ -242,22 +322,57 @@ export default {
       this.dialogVisible = true
       this.formData = row
       this.formData.roles = row.roleIds.split(',')
+
+      // normalize depart id field for the form (support snake_case from backend)
+      let departId = null
+      if (row.departId) {
+        departId = row.departId
+      } else if (row.depart_id) {
+        const raw = String(row.depart_id)
+        // 如果后端已经保存的是 id（纯数字），直接使用；否则当作 facultyName，反查 id
+        if (/^\d+$/.test(raw)) {
+          departId = raw
+        } else {
+          departId = this.findDeptIdByName(row.depart_id) || null
+        }
+      }
+      this.formData.departId = departId
       this.formData.password = null
 
       console.log(JSON.stringify(this.formData))
     },
 
     departSelected(data) {
-      this.formData.departId = data.id
+      // `DepartTreeSelect` 组件通过 `selected` 事件只会回传选中的 id（不是对象）
+      const id = data
+      this.formData.departId = id
       // 保存上次选择的院系到本地，便于下次新建时预选
-      this.lastDepartId = data.id
+      this.lastDepartId = id
       try {
-        localStorage.setItem('sys_user_last_departId', String(data.id))
+        localStorage.setItem('sys_user_last_departId', String(id))
       } catch (e) {
         // ignore
       }
     },
     handleSave() {
+      // 确保发送给后端的字段为 DTO 所期望的 `departId`（部门 id 字符串）
+      if (this.formData.departId !== undefined && this.formData.departId !== null && this.formData.departId !== '') {
+        this.formData.departId = String(this.formData.departId)
+      }
+
+      // 简单校验：roles 与 departId 为必填项（后端也会校验），提前提示以避免 500
+      if (!this.formData.roles || this.formData.roles.length === 0) {
+        this.$message({ type: 'warning', message: '请至少选择一个角色' })
+        return
+      }
+      if (!this.formData.departId) {
+        this.$message({ type: 'warning', message: '请选择院系' })
+        return
+      }
+
+      // 打印将要发送的 payload，便于在控制台查看导致 500 的原因
+      console.debug('Saving user payload:', JSON.parse(JSON.stringify(this.formData)))
+
       saveData(this.formData).then(() => {
         this.$message({
           type: 'success',

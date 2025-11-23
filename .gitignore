@@ -1,0 +1,54 @@
+# Root .gitignore for exam-system repository
+# Ignore node modules (top-level and any subproject)
+node_modules/
+
+# Ignore local ignore folder we use for build outputs
+ignore/
+
+# Java / Maven
+/target/
+/**/*.class
+/**/*.jar
+/exam-api/target/
+/exam-api/target/**
+/exam-api/target/*.jar
+/exam-api/target/classes/
+/exam-api/logs/
+
+# Node / Vue
+/exam-vue/node_modules/
+/exam-vue/dist/
+/exam-vue/dist/**
+/exam-vue/build/
+/exam-vue/.temp/
+
+# Static build outputs
+/dist/
+/build/
+
+# Logs
+/logs/
+/logs/**
+ 
+# Environment files (local secrets)
+.env
+.env.local
+!/.env.example
+*.log
+npm-debug.log*
+yarn-error.log*
+
+
+# IDE / OS
+/.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Package locks (optional to ignore)
+package-lock.json
+yarn.lock
+
+# Other
+.ignore/
+
