@@ -25,8 +25,9 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         try {
-            Path envPath = Paths.get(".env");
-            if (!Files.exists(envPath)) {
+            // Search for .env starting from current working directory and walking up to filesystem root.
+            Path envPath = findEnvUpwards(Paths.get("").toAbsolutePath());
+            if (envPath == null) {
                 return;
             }
 
@@ -91,6 +92,16 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
         } catch (Throwable ignored) {
             // Fail safe: do not prevent application from starting if .env cannot be read
         }
+    }
+
+    private Path findEnvUpwards(Path start) {
+        Path p = start;
+        while (p != null) {
+            Path candidate = p.resolve(".env");
+            if (Files.exists(candidate)) return candidate;
+            p = p.getParent();
+        }
+        return null;
     }
 
     @Override
