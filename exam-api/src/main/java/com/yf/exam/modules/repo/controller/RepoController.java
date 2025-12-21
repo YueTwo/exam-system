@@ -78,10 +78,8 @@ public class RepoController extends BaseController {
     @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
     @ApiOperation(value = "查找详情")
     @RequestMapping(value = "/detail", method = { RequestMethod.POST})
-    public ApiRest<RepoDTO> find(@RequestBody BaseIdReqDTO reqDTO) {
-        Repo entity = baseService.getById(reqDTO.getId());
-        RepoDTO dto = new RepoDTO();
-        BeanUtils.copyProperties(entity, dto);
+    public ApiRest<RepoRespDTO> find(@RequestBody BaseIdReqDTO reqDTO) {
+        RepoRespDTO dto = baseService.findDetail(reqDTO.getId());
         return super.success(dto);
     }
 
