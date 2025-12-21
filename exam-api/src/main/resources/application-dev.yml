@@ -4,9 +4,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/yf_exam_lite?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
-    username: root
-    password: root@123
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/yunfan?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: ${DB_USER}
+    password: ${DB_PASSWD}
     # druid相关配置
     druid:
       max-active: 5000
@@ -67,5 +67,5 @@ swagger:
 
 logging:
   level:
-    root: debug
+    root: info
   path: logs/${spring.application.name}/
