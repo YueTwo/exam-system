@@ -47,5 +47,14 @@
         </where>
     </select>
 
+    <select id="findDetailById" resultMap="ListResultMap">
+        SELECT repo.`id`, repo.`code`, repo.`title`, repo.`remark`, repo.`create_time`, repo.`update_time`,
+        (SELECT COUNT(0) FROM el_qu_repo WHERE repo_id=repo.id AND qu_type=1) AS radio_count,
+        (SELECT COUNT(0) FROM el_qu_repo WHERE repo_id=repo.id AND qu_type=2) AS multi_count,
+        (SELECT COUNT(0) FROM el_qu_repo WHERE repo_id=repo.id AND qu_type=3) AS judge_count
+        FROM el_repo repo
+        WHERE repo.id = #{id}
+    </select>
+
 
 </mapper>
