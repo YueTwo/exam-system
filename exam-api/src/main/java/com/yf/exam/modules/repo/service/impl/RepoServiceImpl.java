@@ -36,4 +36,9 @@ public class RepoServiceImpl extends ServiceImpl<RepoMapper, Repo> implements Re
         BeanMapper.copy(reqDTO, entity);
         this.saveOrUpdate(entity);
     }
+
+    @Override
+    public RepoRespDTO findDetail(String id) {
+        return baseMapper.findDetailById(id);
+    }
 }
