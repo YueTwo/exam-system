@@ -31,7 +31,6 @@ public interface UserExamService extends IService<UserExam> {
      */
     IPage<UserExamRespDTO> myPaging(PagingReqDTO<UserExamReqDTO> reqDTO);
 
-
     /**
      * 考试完成后加入成绩
      * @param userId

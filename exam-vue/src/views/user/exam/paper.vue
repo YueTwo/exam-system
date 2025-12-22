@@ -2,7 +2,7 @@
 
   <div>
 
-    <el-card v-for="item in paperList" style="margin-bottom: 10px; line-height: 30px;">
+    <el-card v-for="item in paperList" :key=item.id style="margin-bottom: 10px; line-height: 30px;">
 
       <el-row :gutter="20">
         <el-col :span="12">

@@ -40,7 +40,7 @@ public class UserBookController extends BaseController {
     */
     @ApiOperation(value = "批量删除")
     @RequestMapping(value = "/delete", method = { RequestMethod.POST})
-    public ApiRest delete(@RequestBody BaseIdsReqDTO reqDTO) {
+    public ApiRest<Void> delete(@RequestBody BaseIdsReqDTO reqDTO) {
         //根据ID删除
         baseService.removeByIds(reqDTO.getIds());
         return super.success();

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
 import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
 import com.yf.exam.modules.user.exam.entity.UserExam;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -16,6 +18,7 @@ import org.apache.ibatis.annotations.Param;
 * @author 聪明笨狗
 * @since 2020-09-21 15:13
 */
+@Mapper
 public interface UserExamMapper extends BaseMapper<UserExam> {
 
     /**

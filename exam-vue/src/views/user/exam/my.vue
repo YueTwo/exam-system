@@ -57,6 +57,7 @@
           <template v-slot="scope">
             <el-button type="primary" size="mini" icon="el-icon-view" @click="handleExamDetail(scope.row.examId)">详情</el-button>
             <el-button type="warning" size="mini" icon="el-icon-close" @click="handlerExamBook(scope.row.examId)">错题</el-button>
+            <el-button type="primary" size="mini" icon="el-icon-view" @click="handlerExamStats(scope.row.examId)">总览</el-button>
           </template>
 
         </el-table-column>
@@ -73,22 +74,30 @@
 
     </el-dialog>
 
+    <el-dialog :visible.sync="graphVisible" title="总览" width="60%">
+      <div class="el-dialog-div">
+        <exam-stats  :exam-id="examId" :user-id="userId"/>
+      </div>
+    </el-dialog>
+
   </div>
 
 </template>
 
 <script>
-import DataTable from '@/components/DataTable'
 import MyPaperList from './paper'
 import { mapGetters } from 'vuex'
+import DataTable from '@/components/DataTable'
+import ExamStats from '@/views/user/components/ExamStats'
 
 export default {
   name: 'MyExamList',
-  components: { MyPaperList, DataTable },
+  components: { MyPaperList, DataTable, ExamStats},
   data() {
     return {
 
       dialogVisible: false,
+      graphVisible: false,
       examId: '',
 
       listQuery: {
@@ -122,6 +131,11 @@ export default {
 
     handlerExamBook(examId) {
       this.$router.push({ name: 'BookList', params: { examId: examId }})
+    },
+
+    handlerExamStats(examId){
+      this.examId = examId
+      this.graphVisible = true
     }
   }
 }

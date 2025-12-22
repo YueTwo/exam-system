@@ -34,7 +34,7 @@
 - 运行后端
   ```
   cd exam-api/
-  mvn -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Dspring.config.additional-location=./param/" spring-boot:run
+  mvn spring-boot:run
   ```
 - 运行前端
   ```
