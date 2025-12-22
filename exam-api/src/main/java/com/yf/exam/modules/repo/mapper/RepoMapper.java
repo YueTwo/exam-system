@@ -26,4 +26,11 @@ public interface RepoMapper extends BaseMapper<Repo> {
      */
     IPage<RepoRespDTO> paging(Page page, @Param("query") RepoReqDTO query);
 
+    /**
+     * 查询题库详情（包含题目数量统计）
+     * @param id 题库ID
+     * @return
+     */
+    RepoRespDTO findDetailById(@Param("id") String id);
+
 }

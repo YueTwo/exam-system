@@ -31,3 +31,11 @@ export function fetchPaging(data) {
 export function batchAction(data) {
   return post('/exam/api/repo/batch-action', data)
 }
+
+/**
+ * 删除题库
+ * @param data
+ */
+export function deleteRepo(data) {
+  return post('/exam/api/repo/delete', data)
+}
