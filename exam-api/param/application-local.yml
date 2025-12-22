@@ -35,7 +35,10 @@ spring:
     username: ${DB_USER}
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     # 请在生产/共享环境中通过环境变量注入密码，避免提交到仓库
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -113,7 +116,11 @@ logging:
   # 日志输出目录也可通过环境变量覆盖（默认保留原值）
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   path: ${LOG_PATH:logs/${spring.application.name}/}
+=======
+  path: ${LOG_PATH:logs/${spring.application.name}/}
+>>>>>>> Stashed changes
 =======
   path: ${LOG_PATH:logs/${spring.application.name}/}
 >>>>>>> Stashed changes
