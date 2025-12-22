@@ -103,13 +103,13 @@ export default {
 
         // 1. 将后端字段映射并计算正确率
         this.stats = {
-          questionTypeStats: (data || []).map(item => ({
+          questionTypeStats: (statsList || []).map(item => ({
             type: `题型${item.quType}`,
             total: item.total,
             rightCount: item.rightCount,
             rightRate: item.total > 0 ? ((item.rightCount / item.total) * 100).toFixed(2) : 0
           })),
-          answerDetail: (data || []).map(item => ({
+          answerDetail: (statsList || []).map(item => ({
             type: `题型${item.quType}`,
             total: item.total,
             right: item.rightCount,
