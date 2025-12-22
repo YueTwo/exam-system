@@ -66,6 +66,8 @@ public interface PaperService extends IService<Paper> {
      */
     void handExam(String paperId);
 
+    void storeAttempt(String paperId);
+
     /**
      * 试卷列表响应类
      * @param reqDTO

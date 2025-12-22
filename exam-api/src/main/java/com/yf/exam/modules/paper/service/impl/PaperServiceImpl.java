@@ -29,10 +29,14 @@ import com.yf.exam.modules.paper.dto.response.PaperListRespDTO;
 import com.yf.exam.modules.paper.entity.Paper;
 import com.yf.exam.modules.paper.entity.PaperQu;
 import com.yf.exam.modules.paper.entity.PaperQuAnswer;
+import com.yf.exam.modules.paper.entity.UserAnswerAttempt;
+import com.yf.exam.modules.paper.entity.UserExamAttempt;
 import com.yf.exam.modules.paper.enums.ExamState;
 import com.yf.exam.modules.paper.enums.PaperState;
 import com.yf.exam.modules.paper.job.BreakExamJob;
 import com.yf.exam.modules.paper.mapper.PaperMapper;
+import com.yf.exam.modules.paper.service.AnswerAttemptService;
+import com.yf.exam.modules.paper.service.PaperAttemptService;
 import com.yf.exam.modules.paper.service.PaperQuAnswerService;
 import com.yf.exam.modules.paper.service.PaperQuService;
 import com.yf.exam.modules.paper.service.PaperService;
@@ -94,6 +98,12 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
 
     @Autowired
     private UserExamService userExamService;
+
+    @Autowired
+    private PaperAttemptService paperAttemptService;
+
+    @Autowired
+    private AnswerAttemptService answerAttemptService;
 
     @Autowired
     private JobService jobService;
@@ -515,6 +525,46 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
             //加入错题本
             new Thread(() -> userBookService.addBook(paper.getExamId(), qu.getQuId())).run();
         }
+    }
+
+    @Override
+    public void storeAttempt(String paperId){
+        Paper paper = paperService.getById(paperId);
+        int attemptNo = paperAttemptService.getNextAttemptNo(paper.getUserId(), paper.getExamId());
+
+        // 创建考试事件
+        int objScore = paperQuService.sumObjective(paperId);
+        paper.setObjScore(objScore);
+        paper.setUserScore(objScore);
+
+        // 主观分，因为要阅卷，所以给0
+        paper.setSubjScore(0);
+
+        UserExamAttempt attempt = new UserExamAttempt();
+        attempt.setId(String.valueOf(IdWorker.getId()));
+        attempt.setUserId(paper.getUserId());
+        attempt.setExamId(paper.getExamId());
+        attempt.setAttemptNo(attemptNo);
+        attempt.setScore(objScore);
+        attempt.setPassed(objScore >= paper.getQualifyScore());
+        attempt.setStartTime(paper.getCreateTime());
+        attempt.setEndTime(new Date());
+        paperAttemptService.save(attempt); // 保存考试事件
+
+        // 保存逐题作答记录
+        List<PaperQuDTO> quList = paperQuService.listByPaper(paperId);
+        List<UserAnswerAttempt> answerList = new ArrayList<>();
+        for(PaperQuDTO qu: quList){
+            UserAnswerAttempt answer = new UserAnswerAttempt();
+            answer.setId(String.valueOf(IdWorker.getId()));
+            answer.setAttemptId(attempt.getId());
+            answer.setQuId(qu.getQuId());
+            answer.setUserAnswer(qu.getAnswer()); // 假设PaperQuDTO有答案字段
+            answer.setIsRight(qu.getIsRight() ? 1 : 0);
+            answer.setScore(qu.getScore()); // 每题得分
+            answerList.add(answer);
+        }
+        answerAttemptService.saveBatchAnswers(answerList);
     }
 
     @Override
