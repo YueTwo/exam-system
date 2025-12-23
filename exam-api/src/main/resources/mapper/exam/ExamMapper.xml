@@ -93,32 +93,4 @@
 
     </select>
 
-
-    <resultMap id="ScoreStatMap"
-               type="com.yf.exam.modules.exam.dto.response.ExamScoreStatDTO">
-        <result column="examId" property="examId"/>
-        <result column="title" property="title"/>
-        <result column="totalUser" property="totalUser"/>
-        <result column="passUser" property="passUser"/>
-        <result column="avgScore" property="avgScore"/>
-        <result column="maxScore" property="maxScore"/>
-        <result column="minScore" property="minScore"/>
-        <result column="passRate" property="passRate"/>
-    </resultMap>
-
-    <select id="scoreStat" resultMap="ScoreStatMap">
-        SELECT ex.id AS examId,
-               ex.title,
-               COALESCE(COUNT(ue.id),0)         AS totalUser,
-               COALESCE(SUM(CASE WHEN ue.passed=1 THEN 1 ELSE 0 END),0) AS passUser,
-               COALESCE(AVG(ue.max_score),0)    AS avgScore,
-               COALESCE(MAX(ue.max_score),0)    AS maxScore,
-               COALESCE(MIN(ue.max_score),0)    AS minScore,
-               CASE WHEN COUNT(ue.id)=0 THEN 0 ELSE COALESCE(SUM(CASE WHEN ue.passed=1 THEN 1 ELSE 0 END)*100.0/COUNT(ue.id),0) END AS passRate
-        FROM el_exam ex
-                 LEFT JOIN el_user_exam ue ON ue.exam_id = ex.id
-        WHERE ex.id=#{examId}
-        GROUP BY ex.id, ex.title
-    </select>
-
 </mapper>
