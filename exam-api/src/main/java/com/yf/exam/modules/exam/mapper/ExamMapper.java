@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yf.exam.modules.exam.dto.ExamDTO;
 import com.yf.exam.modules.exam.dto.response.ExamReviewRespDTO;
 import com.yf.exam.modules.exam.dto.response.ExamOnlineRespDTO;
-import com.yf.exam.modules.exam.dto.response.ExamScoreStatDTO;
 import com.yf.exam.modules.exam.entity.Exam;
 import org.apache.ibatis.annotations.Param;
 
@@ -43,11 +42,4 @@ public interface ExamMapper extends BaseMapper<Exam> {
      * @return
      */
     IPage<ExamOnlineRespDTO> online(Page page, @Param("query") ExamDTO query);
-
-    /**
-     * 考试成绩统计
-     * @param examId
-     * @return
-     */
-    ExamScoreStatDTO scoreStat(@Param("examId") String examId);
 }

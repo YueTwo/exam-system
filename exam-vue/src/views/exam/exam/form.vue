@@ -150,47 +150,6 @@
 
         </el-form-item>
 
-        <el-divider content-position="left">扩展配置</el-divider>
-
-        <el-form-item label="允许迟到">
-          <el-checkbox v-model="postForm.allowLate" :disabled="!postForm.timeLimit" />
-          <span style="margin-left: 10px; color: #999">仅限限时考试生效</span>
-        </el-form-item>
-
-        <el-form-item label="考试注意事项">
-          <el-input v-model="postForm.examNotice" type="textarea" :rows="3" />
-        </el-form-item>
-
-        <el-form-item label="结果显示">
-          <el-radio-group v-model="postForm.resultShowType">
-            <el-radio :label="1" border>仅显示感谢文字</el-radio>
-            <el-radio :label="2" border>显示感谢文字+成绩</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item label="感谢文字">
-          <el-input v-model="postForm.thankText" type="textarea" :rows="2" />
-        </el-form-item>
-
-        <el-form-item label="限考次数">
-          <el-input-number v-model="postForm.maxTryCount" :min="0" />
-          <span style="margin-left: 10px; color: #999">0 表示不限</span>
-        </el-form-item>
-
-        <el-form-item label="积分数量">
-          <el-input-number v-model="postForm.rewardPoints" :min="0" />
-        </el-form-item>
-
-        <el-form-item label="最低交卷(分钟)">
-          <el-input-number v-model="postForm.minSubmitMinutes" :min="0" />
-          <span style="margin-left: 10px; color: #999">0 表示不限制</span>
-        </el-form-item>
-
-        <el-form-item label="售价(分)">
-          <el-input-number v-model="postForm.priceCent" :min="0" />
-          <span style="margin-left: 10px; color: #999">0 表示免费</span>
-        </el-form-item>
-
       </el-form>
 
     </el-card>
@@ -271,17 +230,7 @@ export default {
         // 开放类型
         openType: 1,
         // 考试院系列表
-        departIds: [],
-
-        // 扩展配置（与后端 el_exam_setting 对应）
-        allowLate: true,
-        examNotice: '',
-        resultShowType: 2,
-        thankText: '感谢参加考试！',
-        maxTryCount: 0,
-        rewardPoints: 0,
-        minSubmitMinutes: 0,
-        priceCent: 0
+          departIds: []
       },
       rules: {
         title: [

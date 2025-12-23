@@ -29,20 +29,4 @@ public class ExamSaveReqDTO extends ExamDTO {
     @ApiModelProperty(value = "考试部门列表", required=true)
     private List<String> departIds;
 
-    private Boolean allowLate;
-
-    private String examNotice;
-
-    private Integer resultShowType;
-
-    private String thankText;
-
-    private Integer maxTryCount;
-
-    private Integer rewardPoints;
-
-    private Integer minSubmitMinutes;
-
-    private Integer priceCent;
-
 }

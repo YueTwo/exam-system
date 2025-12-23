@@ -13,12 +13,6 @@ import java.util.List;
 public class ExamResultRespDTO extends PaperDTO {
 
     @ApiModelProperty(value = "问题列表", required=true)
-    private Integer resultShowType;
-
-    private String thankText;
-
-    private Boolean showScore;
-
     private List<PaperQuDetailDTO> quList;
 
 }

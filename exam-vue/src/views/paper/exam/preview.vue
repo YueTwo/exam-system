@@ -18,7 +18,6 @@
           <div><strong>试卷总分：</strong>{{ detailData.totalScore }}分</div>
           <div><strong>及格分数：</strong>{{ detailData.qualifyScore }}分</div>
           <div><strong>考试描述：</strong>{{ detailData.content }}</div>
-          <div v-if="detailData.examNotice && detailData.examNotice !== ''"><strong>考试注意事项：</strong><span style="white-space: pre-line">{{ detailData.examNotice }}</span></div>
           <div><strong>开放类型：</strong> {{ detailData.openType | examOpenType }}</div>
 
         </el-card>
