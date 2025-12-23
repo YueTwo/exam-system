@@ -4,7 +4,9 @@
     <h2 class="text-center">{{ paperData.title }}</h2>
     <p class="text-center" style="color: #666">{{ paperData.createTime }}</p>
 
-    <el-row :gutter="24" style="margin-top: 50px">
+    <el-alert v-if="paperData.thankText" :title="paperData.thankText" type="success" :closable="false" show-icon style="margin-top: 20px" />
+
+    <el-row v-if="paperData.showScore !== false" :gutter="24" style="margin-top: 50px">
 
       <el-col :span="8" class="text-center">
         考生姓名：{{ paperData.userId_dictText }}
@@ -20,7 +22,7 @@
 
     </el-row>
 
-    <el-card style="margin-top: 20px">
+    <el-card v-if="paperData.showScore !== false" style="margin-top: 20px">
 
       <div v-for="item in paperData.quList" :key="item.id" class="qu-content">
 
@@ -119,7 +121,8 @@ export default {
       // 试卷ID
       paperId: '',
       paperData: {
-        quList: []
+        quList: [],
+        showScore: true
       },
       radioValues: {},
       multiValues: {},
@@ -143,6 +146,10 @@ export default {
       paperResult(params).then(response => {
         // 试卷内容
         this.paperData = response.data
+
+        if (this.paperData.showScore === false) {
+          return
+        }
 
         // 填充该题目的答案
         this.paperData.quList.forEach((item) => {

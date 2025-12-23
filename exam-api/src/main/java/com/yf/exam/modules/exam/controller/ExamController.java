@@ -12,8 +12,11 @@ import com.yf.exam.modules.exam.dto.ExamDTO;
 import com.yf.exam.modules.exam.dto.request.ExamSaveReqDTO;
 import com.yf.exam.modules.exam.dto.response.ExamOnlineRespDTO;
 import com.yf.exam.modules.exam.dto.response.ExamReviewRespDTO;
+import com.yf.exam.modules.exam.dto.response.ExamScoreStatDTO;
 import com.yf.exam.modules.exam.entity.Exam;
 import com.yf.exam.modules.exam.service.ExamService;
+import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
+import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -146,6 +149,33 @@ public class ExamController extends BaseController {
         //分页查询并转换
         IPage<ExamReviewRespDTO> page = baseService.reviewPaging(reqDTO);
         return super.success(page);
+    }
+
+
+    /**
+     * 成绩分页
+     * @param reqDTO
+     * @return
+     */
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
+    @ApiOperation(value = "成绩分页")
+    @RequestMapping(value = "/score-paging", method = { RequestMethod.POST})
+    public ApiRest<IPage<UserExamRespDTO>> scorePaging(@RequestBody PagingReqDTO<UserExamReqDTO> reqDTO) {
+        IPage<UserExamRespDTO> page = baseService.scorePaging(reqDTO);
+        return super.success(page);
+    }
+
+    /**
+     * 成绩统计
+     * @param reqDTO
+     * @return
+     */
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
+    @ApiOperation(value = "成绩统计")
+    @RequestMapping(value = "/score-stat", method = { RequestMethod.POST})
+    public ApiRest<ExamScoreStatDTO> scoreStat(@RequestBody BaseIdReqDTO reqDTO) {
+        ExamScoreStatDTO stat = baseService.scoreStat(reqDTO.getId());
+        return super.success(stat);
     }
 
 
