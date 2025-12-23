@@ -80,6 +80,14 @@ public class ExamDTO implements Serializable {
 
         if(this.timeLimit!=null && this.timeLimit){
 
+            if(startTime == null || endTime == null){
+                return ExamState.DISABLED;
+            }
+
+            if(endTime.before(startTime)){
+                return ExamState.DISABLED;
+            }
+
             if(System.currentTimeMillis() < startTime.getTime() ){
                 return ExamState.READY_START;
             }

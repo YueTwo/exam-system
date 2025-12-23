@@ -29,4 +29,10 @@ public interface ExamDepartService extends IService<ExamDepart> {
      * @return
      */
     List<String> listByExam(String examId);
+
+    /**
+     * 清理指定考试的部门关联
+     * @param examId
+     */
+    void clear(String examId);
 }
