@@ -4,11 +4,21 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yf.exam.core.api.ApiRest;
 import com.yf.exam.core.api.controller.BaseController;
 import com.yf.exam.core.api.dto.PagingReqDTO;
+import com.yf.exam.modules.user.exam.dto.ExamStatsDTO;
 import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
+import com.yf.exam.modules.user.exam.dto.request.UserStatsReqDTO;
 import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
 import com.yf.exam.modules.user.exam.service.UserExamService;
+import com.yf.exam.modules.user.exam.service.UserStatsService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.Logical;
+
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +40,8 @@ public class UserExamController extends BaseController {
 
     @Autowired
     private UserExamService baseService;
+    @Autowired
+    private UserStatsService statsService;
 
 
     /**
@@ -61,5 +73,23 @@ public class UserExamController extends BaseController {
         IPage<UserExamRespDTO> page = baseService.myPaging(reqDTO);
 
         return super.success(page);
+
+    }
+
+    @ApiOperation(value = "答题列表")
+    @RequiresRoles(value = {"teacher","assistant"}, logical = Logical.OR)
+    @RequestMapping(value = "/list", method={RequestMethod.POST})
+    public ApiRest<IPage<UserExamRespDTO>> examList(@RequestBody PagingReqDTO<UserExamReqDTO> reqDTO){
+        IPage<UserExamRespDTO> page = statsService.itemlist(reqDTO);
+
+        return super.success(page);
+    }
+
+    @ApiOperation(value="答题总览")
+    @RequestMapping(value="/stats", method = {RequestMethod.POST})
+    public ApiRest<List<ExamStatsDTO>> stats(@RequestBody UserStatsReqDTO reqDTO){
+        List<ExamStatsDTO> respDTO = statsService.common(reqDTO);
+
+        return super.success(respDTO);
     }
 }

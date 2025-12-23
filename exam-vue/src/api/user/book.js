@@ -8,3 +8,9 @@ export function nextQu(examId, quId) {
   return post('/exam/api/user/wrong-book/next', { examId: examId, quId: quId })
 }
 
+export function fetchExamStats(examId, userId) {
+  return post('/exam/api/user/exam/stats', {
+    examId: examId,
+    userId: userId
+  })
+}

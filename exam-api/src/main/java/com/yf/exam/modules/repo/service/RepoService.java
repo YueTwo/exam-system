@@ -31,4 +31,11 @@ public interface RepoService extends IService<Repo> {
      * @param reqDTO
      */
     void save(RepoDTO reqDTO);
+
+    /**
+     * 查找详情（包含题目数量统计）
+     * @param id 题库ID
+     * @return
+     */
+    RepoRespDTO findDetail(String id);
 }

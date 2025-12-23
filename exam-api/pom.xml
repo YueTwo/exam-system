@@ -26,7 +26,7 @@
         -->
         <mysql.driver.version>5.1.49</mysql.driver.version>
         <mybatis-plus.version>3.4.1</mybatis-plus.version>
-        <lombok.version>1.18.4</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
         <alicloud.version>2.1.1.RELEASE</alicloud.version>
         <poi.version>3.9</poi.version>
@@ -229,7 +229,6 @@
 
     <build>
         <!-- Output build artifacts into repository-level ignore directory -->
-        <directory>${project.basedir}/ignore/exam-api-target</directory>
         <finalName>${project.name}</finalName>
         <defaultGoal>compile</defaultGoal>
         <plugins>
@@ -253,6 +252,13 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 

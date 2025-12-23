@@ -33,7 +33,6 @@ spring:
     # 下面使用占位符并提供与当前配置相同的默认值（仅用于本地开发）。
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     username: ${DB_USER}
-    # 请在生产/共享环境中通过环境变量注入密码，避免提交到仓库
     password: ${DB_PASSWORD}
     # druid相关配置
     druid:

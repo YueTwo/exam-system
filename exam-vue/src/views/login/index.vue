@@ -82,7 +82,7 @@ export default {
       let redirect = requested || '/my/exam'
       try {
         const roles = this.$store.getters.roles || []
-        if (roles.includes('assistant')) {
+        if (roles.includes('assistant') || roles.includes('student')) {
           redirect = '/my/exam'
         }
       } catch (e) {
