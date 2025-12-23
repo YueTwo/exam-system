@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yf.exam.modules.user.exam.mapper.UserStatsMapper">
+
+    <select id="statsByUserAndExam"
+            resultType="com.yf.exam.modules.user.exam.dto.ExamStatsDTO">
+
+        SELECT
+            pq.qu_type AS quType,
+            COUNT(1) AS total,
+            SUM(
+                CASE
+                    WHEN pq.is_right = 1 THEN 1
+                    ELSE 0
+                END
+            ) AS rightCount
+        FROM el_paper_qu pq
+        INNER JOIN el_paper p
+            ON pq.paper_id = p.id
+        WHERE p.user_id = #{userId}
+          AND p.exam_id = #{examId}
+          AND pq.answered = 1
+          AND pq.is_right IS NOT NULL
+        GROUP BY pq.qu_type
+        ORDER BY pq.qu_type
+
+    </select>
+
+</mapper>
