@@ -12,8 +12,8 @@ import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
 import com.yf.exam.modules.user.exam.dto.request.UserStatsReqDTO;
 import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
 import com.yf.exam.modules.user.exam.entity.UserExam;
-import com.yf.exam.modules.user.exam.mapper.UserExamAnswerMapper;
 import com.yf.exam.modules.user.exam.mapper.UserExamMapper;
+import com.yf.exam.modules.user.exam.mapper.UserStatsMapper;
 import com.yf.exam.modules.user.exam.service.UserStatsService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserStatsServiceImpl extends ServiceImpl<UserExamMapper, UserExam> implements UserStatsService{
 
-    private final UserExamAnswerMapper statsMapper;
+    private final UserStatsMapper statsMapper;
 
     @Override
     public IPage<UserExamRespDTO> itemlist(PagingReqDTO<UserExamReqDTO> reqDTO) {
