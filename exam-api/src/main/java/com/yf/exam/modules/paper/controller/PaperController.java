@@ -119,7 +119,6 @@ public class PaperController extends BaseController {
     public ApiRest<PaperQuDetailDTO> handleExam(@RequestBody BaseIdReqDTO reqDTO) {
         //根据ID删除
         baseService.handExam(reqDTO.getId());
-        baseService.storeAttempt(reqDTO.getId());
         return super.success();
     }
 
