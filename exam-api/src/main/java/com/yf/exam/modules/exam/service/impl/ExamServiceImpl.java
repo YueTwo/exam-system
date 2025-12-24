@@ -14,16 +14,25 @@ import com.yf.exam.modules.exam.dto.ext.ExamRepoExtDTO;
 import com.yf.exam.modules.exam.dto.request.ExamSaveReqDTO;
 import com.yf.exam.modules.exam.dto.response.ExamOnlineRespDTO;
 import com.yf.exam.modules.exam.dto.response.ExamReviewRespDTO;
+import com.yf.exam.modules.exam.dto.response.ExamScoreStatDTO;
 import com.yf.exam.modules.exam.entity.Exam;
+import com.yf.exam.modules.exam.entity.ExamSetting;
 import com.yf.exam.modules.exam.mapper.ExamMapper;
 import com.yf.exam.modules.exam.service.ExamDepartService;
 import com.yf.exam.modules.exam.service.ExamRepoService;
+import com.yf.exam.modules.exam.service.ExamSettingService;
 import com.yf.exam.modules.exam.service.ExamService;
+import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
+import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
+import com.yf.exam.modules.user.exam.service.UserExamService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -44,8 +53,24 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
     @Autowired
     private ExamDepartService examDepartService;
 
+    @Autowired
+    private UserExamService userExamService;
+
+    @Autowired
+    private ExamSettingService examSettingService;
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void save(ExamSaveReqDTO reqDTO) {
+
+        if(reqDTO.getTimeLimit()!=null && reqDTO.getTimeLimit()){
+            if(reqDTO.getStartTime() == null || reqDTO.getEndTime() == null){
+                throw new ServiceException(1, "限时考试需要设置开始和结束时间！");
+            }
+            if(reqDTO.getEndTime().before(reqDTO.getStartTime())){
+                throw new ServiceException(1, "结束时间必须晚于开始时间！");
+            }
+        }
 
         // ID
         String id = reqDTO.getId();
@@ -86,9 +111,12 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
         // 开放的部门
         if(OpenType.DEPT_OPEN.equals(reqDTO.getOpenType())){
             examDepartService.saveAll(id, reqDTO.getDepartIds());
+        } else {
+            examDepartService.clear(id);
         }
 
         this.saveOrUpdate(entity);
+        examSettingService.saveOrUpdateByExamId(id, reqDTO);
 
     }
 
@@ -97,6 +125,17 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
         ExamSaveReqDTO respDTO = new ExamSaveReqDTO();
         Exam exam = this.getById(id);
         BeanMapper.copy(exam, respDTO);
+
+        // 扩展配置
+        ExamSetting setting = examSettingService.getOrDefault(id);
+        respDTO.setAllowLate(setting.getAllowLate());
+        respDTO.setExamNotice(setting.getExamNotice());
+        respDTO.setResultShowType(setting.getResultShowType());
+        respDTO.setThankText(setting.getThankText());
+        respDTO.setMaxTryCount(setting.getMaxTryCount());
+        respDTO.setRewardPoints(setting.getRewardPoints());
+        respDTO.setMinSubmitMinutes(setting.getMinSubmitMinutes());
+        respDTO.setPriceCent(setting.getPriceCent());
 
         // 考试部门
         List<String> departIds = examDepartService.listByExam(id);
@@ -153,6 +192,54 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
     }
 
 
+    @Override
+    public IPage<UserExamRespDTO> scorePaging(PagingReqDTO<UserExamReqDTO> reqDTO) {
+        UserExamReqDTO params = reqDTO.getParams();
+        if(params == null || StringUtils.isBlank(params.getExamId())){
+            throw new ServiceException(1, "请选择考试！");
+        }
+        return userExamService.paging(reqDTO);
+    }
+
+    @Override
+    public ExamScoreStatDTO scoreStat(String examId) {
+        if(StringUtils.isBlank(examId)){
+            throw new ServiceException(1, "考试ID不能为空！");
+        }
+        ExamScoreStatDTO stat = baseMapper.scoreStat(examId);
+        if(stat == null){
+            stat = new ExamScoreStatDTO();
+            stat.setExamId(examId);
+            stat.setTotalUser(0);
+            stat.setPassUser(0);
+            stat.setAvgScore(BigDecimal.ZERO);
+            stat.setMaxScore(0);
+            stat.setMinScore(0);
+            stat.setPassRate(BigDecimal.ZERO);
+        }else{
+            if(stat.getTotalUser()==null){
+                stat.setTotalUser(0);
+            }
+            if(stat.getPassUser()==null){
+                stat.setPassUser(0);
+            }
+            if(stat.getAvgScore()==null){
+                stat.setAvgScore(BigDecimal.ZERO);
+            }
+            if(stat.getMaxScore()==null){
+                stat.setMaxScore(0);
+            }
+            if(stat.getMinScore()==null){
+                stat.setMinScore(0);
+            }
+            if(stat.getPassRate()==null){
+                stat.setPassRate(BigDecimal.ZERO);
+            }
+        }
+        return stat;
+    }
+
+
     /**
      * 计算分值
      * @param reqDTO
@@ -164,6 +251,10 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
 
         // 题库组卷
         List<ExamRepoExtDTO> repoList = reqDTO.getRepoList();
+
+        if(CollectionUtils.isEmpty(repoList)){
+            throw new ServiceException(1, "必须选择至少一个题库！");
+        }
 
         for(ExamRepoDTO item: repoList){
             if(item.getRadioCount()!=null

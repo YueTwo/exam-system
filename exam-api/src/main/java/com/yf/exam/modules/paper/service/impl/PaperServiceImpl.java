@@ -15,7 +15,10 @@ import com.yf.exam.core.utils.CronUtils;
 import com.yf.exam.modules.exam.dto.ExamDTO;
 import com.yf.exam.modules.exam.dto.ExamRepoDTO;
 import com.yf.exam.modules.exam.dto.ext.ExamRepoExtDTO;
+import com.yf.exam.modules.exam.entity.ExamSetting;
+import com.yf.exam.modules.exam.service.ExamOrderService;
 import com.yf.exam.modules.exam.service.ExamRepoService;
+import com.yf.exam.modules.exam.service.ExamSettingService;
 import com.yf.exam.modules.exam.service.ExamService;
 import com.yf.exam.modules.paper.dto.PaperDTO;
 import com.yf.exam.modules.paper.dto.PaperQuDTO;
@@ -44,6 +47,7 @@ import com.yf.exam.modules.qu.service.QuService;
 import com.yf.exam.modules.sys.user.entity.SysUser;
 import com.yf.exam.modules.sys.user.service.SysUserService;
 import com.yf.exam.modules.user.book.service.UserBookService;
+import com.yf.exam.modules.user.exam.entity.UserExam;
 import com.yf.exam.modules.user.exam.service.UserExamService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +100,12 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
     private UserExamService userExamService;
 
     @Autowired
+    private ExamSettingService examSettingService;
+
+    @Autowired
+    private ExamOrderService examOrderService;
+
+    @Autowired
     private JobService jobService;
 
     /**
@@ -136,6 +146,34 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
 
         if(!ExamState.ENABLE.equals(exam.getState())){
             throw new ServiceException(1, "考试状态不正确！");
+        }
+
+        // 扩展配置校验
+        ExamSetting setting = examSettingService.getOrDefault(examId);
+
+        // 限制迟到：仅限限时考试，已开始则不能再进入
+        if (Boolean.TRUE.equals(exam.getTimeLimit())
+                && exam.getStartTime() != null
+                && Boolean.FALSE.equals(setting.getAllowLate())
+                && System.currentTimeMillis() > exam.getStartTime().getTime()) {
+            throw new ServiceException(1, "本场考试不允许迟到进入！");
+        }
+
+        // 限考次数
+        if (setting.getMaxTryCount() != null && setting.getMaxTryCount() > 0) {
+            QueryWrapper<UserExam> tryWrapper = new QueryWrapper<>();
+            tryWrapper.lambda().eq(UserExam::getUserId, userId).eq(UserExam::getExamId, examId);
+            UserExam record = userExamService.getOne(tryWrapper, false);
+            if (record != null && record.getTryCount() != null && record.getTryCount() >= setting.getMaxTryCount()) {
+                throw new ServiceException(1, "已达到限考次数，无法再次进入考试！");
+            }
+        }
+
+        // 付费校验
+        if (setting.getPriceCent() != null && setting.getPriceCent() > 0) {
+            if (!examOrderService.hasPaid(userId, examId)) {
+                throw new ServiceException(1, "该考试为付费考试，请先完成支付！");
+            }
         }
 
         // 考试题目列表
@@ -197,6 +235,19 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
         // 试题基本信息
         Paper paper = paperService.getById(paperId);
         BeanMapper.copy(paper, respDTO);
+
+        ExamSetting setting = examSettingService.getOrDefault(paper.getExamId());
+        respDTO.setResultShowType(setting.getResultShowType());
+        respDTO.setThankText(setting.getThankText());
+        respDTO.setShowScore(setting.getResultShowType() == null || setting.getResultShowType() != 1);
+
+        if (Boolean.FALSE.equals(respDTO.getShowScore())) {
+            respDTO.setObjScore(null);
+            respDTO.setSubjScore(null);
+            respDTO.setUserScore(null);
+            respDTO.setQuList(java.util.Collections.emptyList());
+            return respDTO;
+        }
 
         List<PaperQuDetailDTO> quList = paperQuService.listForPaperResult(paperId);
         respDTO.setQuList(quList);
@@ -462,6 +513,18 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
 
         //获取试卷信息
         Paper paper = paperService.getById(paperId);
+
+        // 最低交卷时长限制（分钟）
+        ExamSetting setting = examSettingService.getOrDefault(paper.getExamId());
+        if (setting.getMinSubmitMinutes() != null
+                && setting.getMinSubmitMinutes() > 0
+                && paper.getCreateTime() != null) {
+            long elapsedMillis = System.currentTimeMillis() - paper.getCreateTime().getTime();
+            long minMillis = setting.getMinSubmitMinutes().longValue() * 60L * 1000L;
+            if (elapsedMillis < minMillis) {
+                throw new ServiceException(1, "未达到最低交卷时长，暂不能交卷！");
+            }
+        }
 
         //如果不是正常的，抛出异常
         if(!PaperState.ING.equals(paper.getState())){

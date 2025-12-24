@@ -7,6 +7,7 @@ import com.yf.exam.modules.exam.entity.ExamDepart;
 import com.yf.exam.modules.exam.mapper.ExamDepartMapper;
 import com.yf.exam.modules.exam.service.ExamDepartService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
 @Service
 public class ExamDepartServiceImpl extends ServiceImpl<ExamDepartMapper, ExamDepart> implements ExamDepartService {
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void saveAll(String examId, List<String> departs) {
 
@@ -62,5 +64,13 @@ public class ExamDepartServiceImpl extends ServiceImpl<ExamDepartMapper, ExamDep
 
         return ids;
 
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void clear(String examId) {
+        QueryWrapper<ExamDepart> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(ExamDepart::getExamId, examId);
+        this.remove(wrapper);
     }
 }

@@ -7,7 +7,10 @@ import com.yf.exam.modules.exam.dto.ExamDTO;
 import com.yf.exam.modules.exam.dto.request.ExamSaveReqDTO;
 import com.yf.exam.modules.exam.dto.response.ExamOnlineRespDTO;
 import com.yf.exam.modules.exam.dto.response.ExamReviewRespDTO;
+import com.yf.exam.modules.exam.dto.response.ExamScoreStatDTO;
 import com.yf.exam.modules.exam.entity.Exam;
+import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
+import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
 
 /**
 * <p>
@@ -61,4 +64,18 @@ public interface ExamService extends IService<Exam> {
      * @return
      */
     IPage<ExamReviewRespDTO> reviewPaging(PagingReqDTO<ExamDTO> reqDTO);
+
+    /**
+     * 成绩记录分页
+     * @param reqDTO
+     * @return
+     */
+    IPage<UserExamRespDTO> scorePaging(PagingReqDTO<UserExamReqDTO> reqDTO);
+
+    /**
+     * 考试成绩统计
+     * @param examId
+     * @return
+     */
+    ExamScoreStatDTO scoreStat(String examId);
 }

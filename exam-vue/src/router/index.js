@@ -125,6 +125,14 @@ export const asyncRoutes = [
       },
 
       {
+        path: 'exam/share/:shareToken',
+        component: () => import('@/views/paper/exam/share'),
+        name: 'ShareExam',
+        meta: { title: '分享考试', noCache: true, activeMenu: '/my/exam' },
+        hidden: true
+      },
+
+      {
         path: 'exam/result/:id',
         component: () => import('@/views/paper/exam/result'),
         name: 'ShowExam',
@@ -251,6 +259,27 @@ export const asyncRoutes = [
         name: 'ListPaper',
         meta: { title: '考试记录', noCache: true, activeMenu: '/exam/exam' },
         hidden: true
+      },
+
+      {
+        path: 'analysis',
+        component: () => import('@/views/exam/analysis'),
+        name: 'ExamAnalysis',
+        meta: { title: '统计分析', noCache: true, icon: 'chart' }
+      },
+
+      {
+        path: 'share',
+        component: () => import('@/views/exam/share'),
+        name: 'ExamShare',
+        meta: { title: '考试分享', noCache: true, icon: 'link' }
+      },
+
+      {
+        path: 'pay',
+        component: () => import('@/views/exam/pay'),
+        name: 'ExamPay',
+        meta: { title: '考试付费', noCache: true, icon: 'money' }
       }
     ]
   },
