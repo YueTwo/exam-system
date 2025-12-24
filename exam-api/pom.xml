@@ -20,11 +20,8 @@
         <swagger.version>2.9.2</swagger.version>
         <dozer.version>5.5.1</dozer.version>
         <apache.commons.version>3.8</apache.commons.version>
-        <!--
-          mysql-connector-java 8.x requires MySQL protocol features (CLIENT_PLUGIN_AUTH) that some older MySQL/MariaDB/proxy deployments don't support.
-          Downgrade to 5.1.x to improve compatibility when you cannot change the remote DB server.
-        -->
-        <mysql.driver.version>5.1.49</mysql.driver.version>
+        <!-- MySQL 8 server requires Connector/J 8.x for modern auth plugins (e.g. caching_sha2_password). -->
+        <mysql.driver.version>8.0.33</mysql.driver.version>
         <mybatis-plus.version>3.4.1</mybatis-plus.version>
         <lombok.version>1.18.30</lombok.version>
         <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
