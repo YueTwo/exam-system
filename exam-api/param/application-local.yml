@@ -33,7 +33,7 @@ spring:
     # 下面使用占位符并提供与当前配置相同的默认值（仅用于本地开发）。
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWD}
     # druid相关配置
     druid:
       max-active: 5000
