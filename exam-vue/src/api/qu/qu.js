@@ -40,3 +40,10 @@ export function importExcel(file) {
   return upload('/exam/api/qu/qu/import', file)
 }
 
+/**
+ * 删除试题
+ * @param data
+ */
+export function deleteQu(data) {
+  return post('/exam/api/qu/qu/delete', data)
+}
