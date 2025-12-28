@@ -78,13 +78,6 @@ export default {
     async fetchExamStats() {
       this.loading = true;
       try {
-        // ========== 真实后端请求（替换为你的接口） ==========
-        // const res = await this.$http.get(`/api/exam/stats/${this.examId}`, {
-        //   params: { userId: this.userId }
-        // });
-        // const data = res.data;
-
-        // 模拟后端请求（测试用，和真实接口格式一致）
         const res = await fetchExamStats(this.examId, this.userId);
 
         /**
@@ -101,16 +94,26 @@ export default {
 
         const statsList = res.data || res;
 
+        const questionTypeMap = {
+          1: '单选题',
+          2: '多选题',
+          3: '判断题',
+          4: '简答题',
+          // 可根据你的实际业务补充更多题型映射
+          // 5: '填空题',
+          // 6: '计算题'
+        };
+
         // 1. 将后端字段映射并计算正确率
         this.stats = {
           questionTypeStats: (statsList || []).map(item => ({
-            type: `题型${item.quType}`,
+            type: questionTypeMap[item.quType] || `未知题型(${item.quType})`,
             total: item.total,
             rightCount: item.rightCount,
             rightRate: item.total > 0 ? ((item.rightCount / item.total) * 100).toFixed(2) : 0
           })),
           answerDetail: (statsList || []).map(item => ({
-            type: `题型${item.quType}`,
+            type: questionTypeMap[item.quType] || `未知题型(${item.quType})`,
             total: item.total,
             right: item.rightCount,
             wrong: item.total - item.rightCount

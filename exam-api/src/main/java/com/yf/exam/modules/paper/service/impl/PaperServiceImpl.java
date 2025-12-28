@@ -56,6 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
 * <p>
@@ -500,7 +501,7 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
         qu.setQuId(reqDTO.getQuId());
         qu.setPaperId(reqDTO.getPaperId());
         qu.setIsRight(right);
-        qu.setAnswer(reqDTO.getAnswer());
+        qu.setAnswer(reqDTO.getAnswers().stream().collect(Collectors.joining(",")));
         qu.setAnswered(true);
 
         paperQuService.updateByKey(qu);

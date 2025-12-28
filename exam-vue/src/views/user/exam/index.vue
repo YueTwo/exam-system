@@ -78,11 +78,11 @@
 
 <script>
 import DataTable from '@/components/DataTable'
-import MyPaperList from './paper'
+import PaperCard from '@/views/user/components/PaperCard'
 
 export default {
   name: 'ExamUserList',
-  components: { MyPaperList, DataTable },
+  components: { PaperCard, DataTable },
   data() {
     return {
 
