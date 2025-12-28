@@ -5,7 +5,9 @@ import com.yf.exam.core.api.ApiRest;
 import com.yf.exam.core.api.controller.BaseController;
 import com.yf.exam.core.api.dto.PagingReqDTO;
 import com.yf.exam.modules.user.exam.dto.ExamStatsDTO;
+import com.yf.exam.modules.user.exam.dto.UserAnswerDetailDTO;
 import com.yf.exam.modules.user.exam.dto.request.UserExamReqDTO;
+import com.yf.exam.modules.user.exam.dto.request.UserPaperReqDTO;
 import com.yf.exam.modules.user.exam.dto.request.UserStatsReqDTO;
 import com.yf.exam.modules.user.exam.dto.response.UserExamRespDTO;
 import com.yf.exam.modules.user.exam.service.UserExamService;
@@ -90,6 +92,13 @@ public class UserExamController extends BaseController {
     public ApiRest<List<ExamStatsDTO>> stats(@RequestBody UserStatsReqDTO reqDTO){
         List<ExamStatsDTO> respDTO = statsService.common(reqDTO);
 
+        return super.success(respDTO);
+    }
+
+    @ApiOperation(value="试卷答题情况")
+    @RequestMapping(value="/result", method={RequestMethod.POST})
+    public ApiRest<List<UserAnswerDetailDTO>> result(@RequestBody UserPaperReqDTO reqDTO){
+        List<UserAnswerDetailDTO> respDTO = statsService.result(reqDTO);
         return super.success(respDTO);
     }
 }

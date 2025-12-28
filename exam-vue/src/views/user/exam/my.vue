@@ -69,14 +69,14 @@
     <el-dialog :visible.sync="dialogVisible" title="考试明细" width="60%">
 
       <div class="el-dialog-div">
-        <my-paper-list :exam-id="examId" :user-id="userId" />
+        <paper-card :exam-id="examId" :user-id="userId" />
       </div>
 
     </el-dialog>
 
     <el-dialog :visible.sync="graphVisible" title="总览" width="60%">
       <div class="el-dialog-div">
-        <exam-stats  :exam-id="examId" :user-id="userId"/>
+        <exam-stats :key="examId" :exam-id="examId" :user-id="userId"/>
       </div>
     </el-dialog>
 
@@ -85,14 +85,14 @@
 </template>
 
 <script>
-import MyPaperList from './paper'
 import { mapGetters } from 'vuex'
 import DataTable from '@/components/DataTable'
 import ExamStats from '@/views/user/components/ExamStats'
+import PaperCard from '@/views/user/components/PaperCard'
 
 export default {
   name: 'MyExamList',
-  components: { MyPaperList, DataTable, ExamStats},
+  components: { DataTable, ExamStats, PaperCard},
   data() {
     return {
 
@@ -133,7 +133,7 @@ export default {
       this.$router.push({ name: 'BookList', params: { examId: examId }})
     },
 
-    handlerExamStats(examId){
+    handlerExamStats(examId) {
       this.examId = examId
       this.graphVisible = true
     }

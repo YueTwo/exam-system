@@ -29,4 +29,39 @@
 
     </select>
 
+    <select id="findAnswerDetails"
+            resultType="java.util.Map">
+        SELECT
+            -- el_paper_qu 答题记录字段
+            pq.id,
+            pq.paper_id AS paperId,
+            pq.qu_id AS quId,
+            pq.qu_type AS quType,
+            pq.answered,
+            pq.answer,
+            pq.sort,
+            pq.score,
+            pq.actual_score AS actualScore,
+            pq.is_right AS isRight,
+            -- el_qu 题目信息字段
+            qu.content AS quContent,
+            qu.analysis AS quAnalysis,
+            -- 核心：关联 el_qu_answer 获取选项内容，拼接为 abc:content:is_right
+            GROUP_CONCAT(DISTINCT CONCAT_WS(':', pqa.abc, qua.content, pqa.is_right) ORDER BY pqa.sort SEPARATOR ';') AS options,
+            -- 正确答案标识（abc 字段，如 B/B,C）
+            GROUP_CONCAT(DISTINCT CASE WHEN pqa.is_right = 1 THEN pqa.abc END ORDER BY pqa.sort SEPARATOR ',') AS correctAnswerStr
+        FROM el_paper_qu pq
+        -- 关联题目表
+        LEFT JOIN el_qu qu ON pq.qu_id = qu.id
+        -- 关联选项标识/正确性表（el_paper_qu_answer）
+        LEFT JOIN el_paper_qu_answer pqa
+            ON pq.paper_id = pqa.paper_id
+            AND pq.qu_id = pqa.qu_id
+        -- 关联选项内容表（el_qu_answer）：通过 answer_id 关联
+        LEFT JOIN el_qu_answer qua ON pqa.answer_id = qua.id
+        WHERE pq.paper_id = #{paperId}
+        -- 分组：确保每题只返回一条记录
+        GROUP BY pq.id, pq.paper_id, pq.qu_id
+        ORDER BY pq.sort ASC
+    </select>
 </mapper>
