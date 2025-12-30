@@ -24,7 +24,7 @@
 
             <repo-select v-model="listQuery.params.repoIds" :multi="true" />
 
-            <el-input v-model="listQuery.params.content" placeholder="题目内容" style="width: 200px;" class="filter-item" />
+            <el-input v-model="listQuery.params.content" placeholder="题目" style="width: 200px;" class="filter-item" />
 
             <el-button-group class="filter-item" style="float:  right">
               <el-button size="mini" icon="el-icon-upload2" @click="showImport">导入</el-button>
@@ -65,6 +65,29 @@
           prop="createTime"
           width="180px"
         />
+
+        <el-table-column
+          label="操作"
+          align="center"
+          width="180"
+        >
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="handleEdit(scope.row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.row)"
+            >
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
 
       </template>
 
@@ -111,8 +134,8 @@
 <script>
 import DataTable from '@/components/DataTable'
 import RepoSelect from '@/components/RepoSelect'
-import { batchAction } from '@/api/qu/repo'
-import { exportExcel, importExcel, importTemplate } from '@/api/qu/qu'
+import {batchAction} from '@/api/qu/repo'
+import {deleteQu, exportExcel, importExcel, importTemplate} from '@/api/qu/qu'
 
 export default {
   name: 'QuList',
@@ -196,6 +219,37 @@ export default {
 
       this.dialogVisible = true
       this.dialogQuIds = obj.ids
+    },
+
+    handleEdit(row) {
+      this.$router.push({
+        name: 'UpdateQu',
+        params: { id: row.id }
+      })
+    },
+
+    // 处理删除操作
+    handleDelete(row) {
+      this.$confirm(`确定要删除试题"${row.content}"吗？删除后将无法恢复。`, '删除确认', {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用删除接口
+        deleteQu({
+          ids: [row.id]
+        }).then(() => {
+          // 删除成功（拦截器已经验证 code === 0）
+          this.$message.success('删除成功')
+          // 刷新列表
+          this.$refs.pagingTable.fetchData()
+        }).catch(() => {
+          // 删除失败（拦截器已经显示错误消息）
+          // 这里可以添加额外的错误处理逻辑
+        })
+      }).catch(() => {
+        // 用户取消删除，不做任何操作
+      })
     },
 
     handlerRepoAction() {
